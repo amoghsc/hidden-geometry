@@ -1,0 +1,957 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hidden Geometry</title>
+<meta name="description" content="The invisible maths inside everyday things">
+<meta property="og:title" content="Hidden Geometry">
+<meta property="og:description" content="The invisible maths inside everyday things">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%2213%22%20fill%3D%22none%22%20stroke%3D%22%232445D6%22%20stroke-width%3D%223%22%2F%3E%3Cpath%20d%3D%22M16%203v26M3%2016h26%22%20stroke%3D%22%23E8A317%22%20stroke-width%3D%222%22%2F%3E%3C%2Fsvg%3E">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+</head>
+<body>
+<style id="hg-css">/* Layout: a drafting-table site. Index of found objects on graph paper; each piece opens to a live demo.
+   Tokens below are the Blueprint defaults; JS overrides them from the saved site settings. */
+:root {
+  --bg: #F2F5F8; --panel: #FFFFFF; --fg: #12203A; --muted: #5A6880;
+  --accent: #2445D6; --accent2: #E8A317; --line: #D5DDE7; --on-accent: #FFFFFF;
+  --danger: #C2362B; --ok: #1F8A55;
+  --font-display: "Familjen Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-ui: "Familjen Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --radius: 10px; --scale: 1; --gap: 20px; --maxw: 1120px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0E1626; --panel: #142036; --fg: #E6ECF5; --muted: #93A1B8;
+  --accent: #7C95FF; --accent2: #F2C14E; --line: #26344E; --on-accent: #0E1626;
+  --danger: #FF7B6E; --ok: #5BD394; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0E1626; --panel: #142036; --fg: #E6ECF5; --muted: #93A1B8;
+  --accent: #7C95FF; --accent2: #F2C14E; --line: #26344E; --on-accent: #0E1626;
+  --danger: #FF7B6E; --ok: #5BD394; color-scheme: dark }
+
+html { font-size: calc(16px * var(--scale)); }
+body { background: var(--bg); color: var(--fg); font: 1rem/1.6 var(--font-body); }
+body.pat-grid { background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 28px 28px; background-attachment: fixed; }
+body.pat-dots { background-image: radial-gradient(var(--line) 1.4px, transparent 1.6px); background-size: 22px 22px; background-attachment: fixed; }
+body.pat-iso { background-image: linear-gradient(30deg, transparent 49.2%, var(--line) 49.2% 50.8%, transparent 50.8%), linear-gradient(150deg, transparent 49.2%, var(--line) 49.2% 50.8%, transparent 50.8%), linear-gradient(90deg, transparent 49.2%, var(--line) 49.2% 50.8%, transparent 50.8%); background-size: 40px 69.3px; background-attachment: fixed; }
+body.dens-compact { --gap: 12px; }
+body.dens-airy { --gap: 32px; }
+body.w-narrow { --maxw: 820px; }
+body.w-wide { --maxw: 1400px; }
+body.nomotion *, body.nomotion *::before, body.nomotion *::after { transition: none !important; animation: none !important; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+* { box-sizing: border-box; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button, select, input, textarea { font: inherit; color: inherit; }
+.btn { font: 600 0.875rem/1 var(--font-ui); padding: 9px 14px; border-radius: calc(var(--radius) * .7); border: 1px solid var(--line); background: var(--panel); color: var(--fg); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.btn:hover { border-color: var(--fg); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn.ghost { background: transparent; }
+.btn.danger { color: var(--danger); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn.small { padding: 6px 10px; font-size: .8rem; }
+
+.shell { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 48px; }
+.wrap { max-width: var(--maxw); margin: 0 auto; }
+
+/* ---------- Public site ---------- */
+.site-head { padding-block: 56px 28px; display: grid; gap: 14px; }
+.eyebrow { font: 600 .75rem/1.2 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.site-title { font: 700 clamp(2.4rem, 7vw, 4.6rem)/.95 var(--font-display); letter-spacing: -.02em; margin: 0; text-wrap: balance; }
+.site-title .mark { color: var(--accent); }
+.site-tag { font: 500 clamp(1.1rem, 2.4vw, 1.45rem)/1.35 var(--font-display); color: var(--muted); margin: 0; max-width: 40ch; text-wrap: balance; }
+.site-intro { max-width: 62ch; margin: 0; }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; padding-block: 8px 20px; }
+.chip { font: 600 .78rem/1 var(--font-mono); padding: 7px 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); color: var(--muted); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+
+.cards { display: grid; gap: var(--gap); grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
+.cards.layout-list { grid-template-columns: 1fr; }
+.cards.layout-feature > .card:first-child { grid-column: 1 / -1; }
+.cards.layout-feature > .card:first-child .card-title { font-size: clamp(1.6rem, 3.6vw, 2.4rem); }
+.card { position: relative; display: grid; gap: 10px; align-content: start; padding: calc(var(--gap) * .9); text-decoration: none; color: inherit; border-radius: var(--radius); background: var(--panel); min-width: 0; transition: transform .18s ease, border-color .18s ease; }
+.card-outlined .card { border: 1.5px solid var(--line); }
+.card-outlined .card:hover { border-color: var(--fg); }
+.card-raised .card { box-shadow: 0 1px 2px rgba(10,20,40,.08), 0 8px 24px -10px rgba(10,20,40,.25); }
+.card-raised .card:hover { transform: translateY(-2px); }
+.card-flat .card { background: transparent; padding-inline: 0; border-top: 2px solid var(--fg); border-radius: 0; }
+.cards.layout-list .card { grid-template-columns: minmax(0, 14rem) minmax(0, 1fr); column-gap: 24px; }
+.cards.layout-list .card .card-meta { grid-row: span 3; }
+@media (max-width: 640px) { .cards.layout-list .card { grid-template-columns: 1fr; } }
+.card-meta { font: .75rem/1.4 var(--font-mono); color: var(--muted); letter-spacing: .02em; }
+.card-meta b { color: var(--accent); font-weight: 600; }
+.card-title { font: 700 1.45rem/1.12 var(--font-display); margin: 0; letter-spacing: -.01em; text-wrap: balance; }
+.card-hook { margin: 0; color: var(--fg); opacity: .85; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { font: .7rem/1 var(--font-mono); padding: 4px 7px; border-radius: 4px; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); }
+.empty { padding: 40px; border: 1.5px dashed var(--line); border-radius: var(--radius); text-align: center; color: var(--muted); background: var(--panel); }
+
+.piece { display: grid; gap: 22px; padding-block: 28px; }
+.back { font: 600 .85rem var(--font-ui); text-decoration: none; display: inline-flex; gap: 6px; align-items: center; width: fit-content; background: none; border: 0; color: var(--accent); cursor: pointer; padding: 0; }
+.piece-head { display: grid; gap: 12px; max-width: 70ch; }
+.piece-title { font: 700 clamp(2rem, 5.4vw, 3.4rem)/1 var(--font-display); letter-spacing: -.02em; margin: 0; text-wrap: balance; }
+.piece-hook { font: 500 clamp(1.1rem, 2.2vw, 1.35rem)/1.4 var(--font-display); color: var(--muted); margin: 0; text-wrap: balance; }
+.demo-frame { border-radius: var(--radius); overflow: hidden; background: var(--panel); }
+.frame-card .demo-frame { border: 1.5px solid var(--line); box-shadow: 0 10px 30px -18px rgba(10,20,40,.35); }
+.frame-bordered .demo-frame { border: 2px solid var(--fg); }
+.frame-bare .demo-frame { background: transparent; }
+.demo-frame iframe { width: 100%; border: 0; display: block; min-height: 240px; background: transparent; }
+.story { max-width: 66ch; display: grid; gap: 14px; font-size: 1.06rem; }
+.story p { margin: 0; }
+.story h3 { font: 700 1.2rem var(--font-display); margin: 8px 0 0; }
+.sources { max-width: 66ch; border-top: 1px solid var(--line); padding-top: 14px; display: grid; gap: 6px; }
+.sources ul { margin: 0; padding-left: 18px; }
+.sources li { overflow-wrap: anywhere; }
+.pn { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 18px; }
+.pn button { background: none; border: 0; padding: 0; cursor: pointer; color: var(--accent); font: 600 .95rem var(--font-ui); text-align: left; max-width: 46%; }
+.site-foot { padding-top: 48px; color: var(--muted); font: .8rem/1.5 var(--font-mono); }
+
+/* owner pill */
+.owner-pill { position: fixed; right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 20; box-shadow: 0 8px 24px -8px rgba(0,0,0,.4); }
+
+/* ---------- Studio ---------- */
+body.studio { background-image: none; }
+.st-bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 15; background: var(--panel); border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+body.studio::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 16; background: var(--panel); }
+.st-brand { font: 700 1.05rem var(--font-display); display: flex; gap: 8px; align-items: baseline; }
+.st-brand small { font: 600 .7rem var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+.st-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.st-tabs button { font: 600 .85rem var(--font-ui); padding: 8px 12px; border: 0; border-radius: 8px; background: none; color: var(--muted); cursor: pointer; }
+.st-tabs button[aria-selected="true"] { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
+.st-spacer { flex: 1; }
+.st-pubstate { font: .75rem/1.3 var(--font-mono); color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.st-pubstate .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); }
+.st-pubstate.dirty .dot { background: var(--accent2); }
+.st-main { padding-block: 20px 60px; }
+body.compact .st-main { padding-block: 12px 40px; }
+.st-pieces { display: grid; grid-template-columns: minmax(0, 290px) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 860px) { .st-pieces { grid-template-columns: 1fr; } }
+.st-list { display: grid; gap: 10px; position: sticky; top: calc(70px + env(safe-area-inset-top, 0px)); max-height: calc(100vh - 90px); overflow: auto; padding-right: 4px; }
+@media (max-width: 860px) { .st-list { position: static; max-height: 46vh; } }
+.st-list-head { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.st-search { flex: 1; min-width: 0; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+.st-filter { display: flex; gap: 4px; flex-wrap: wrap; }
+.st-item { display: grid; gap: 3px; text-align: left; padding: 10px 12px; border-radius: 8px; border: 1px solid transparent; background: var(--panel); cursor: pointer; }
+body.compact .st-item { padding: 6px 10px; }
+.st-item:hover { border-color: var(--line); }
+.st-item[aria-current="true"] { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+.st-item-title { font: 600 .92rem/1.25 var(--font-ui); }
+.st-item-meta { font: .7rem var(--font-mono); color: var(--muted); display: flex; gap: 8px; align-items: center; }
+.status { font: 600 .65rem/1 var(--font-mono); text-transform: uppercase; letter-spacing: .06em; padding: 3px 6px; border-radius: 4px; }
+.status-idea { background: color-mix(in srgb, var(--muted) 18%, transparent); color: var(--muted); }
+.status-drafting { background: color-mix(in srgb, var(--accent2) 22%, transparent); color: color-mix(in srgb, var(--accent2) 60%, var(--fg)); }
+.status-ready { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); }
+.status-published { background: color-mix(in srgb, var(--ok) 18%, transparent); color: var(--ok); }
+
+.st-editor { display: grid; gap: 18px; min-width: 0; }
+.sec { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; display: grid; gap: 14px; min-width: 0; }
+body.compact .sec { padding: 12px; gap: 10px; }
+.sec-head { display: flex; gap: 10px; align-items: baseline; justify-content: space-between; flex-wrap: wrap; }
+.sec-head h2 { font: 700 1.1rem var(--font-display); margin: 0; }
+.sec-head p { margin: 0; color: var(--muted); font: .85rem/1.4 var(--font-ui); }
+.fields { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
+.field { display: grid; gap: 5px; min-width: 0; }
+.field.full { grid-column: 1 / -1; }
+.field > span { font: 600 .72rem/1.2 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.field > small { color: var(--muted); font: .75rem/1.4 var(--font-ui); }
+.field input[type=text], .field input[type=number], .field input[type=url], .field select, .field textarea { width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); font: .95rem/1.45 var(--font-ui); }
+.field textarea { resize: vertical; min-height: 80px; }
+.field textarea.code { font: .78rem/1.45 var(--font-mono); min-height: 260px; white-space: pre; tab-size: 2; }
+.field input[type=range] { width: 100%; accent-color: var(--accent); }
+.check { display: flex; gap: 8px; align-items: center; font: .9rem var(--font-ui); }
+.check input { accent-color: var(--accent); width: 16px; height: 16px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.approaches { display: flex; flex-wrap: wrap; gap: 8px; }
+.appr { text-align: left; display: grid; gap: 2px; padding: 9px 12px; border-radius: 8px; border: 1.5px solid var(--line); background: var(--bg); cursor: pointer; max-width: 260px; }
+.appr b { font: 600 .85rem var(--font-ui); }
+.appr small { color: var(--muted); font: .72rem/1.35 var(--font-ui); }
+.appr[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--bg)); }
+.vtabs { display: flex; gap: 6px; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+.vtab { font: 600 .8rem var(--font-ui); padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.vtab[aria-selected="true"] { border-color: var(--fg); background: var(--fg); color: var(--bg); }
+.vtab .star { color: var(--accent2); }
+.vtab.busy { border-style: dashed; color: var(--muted); }
+.preview-wrap { background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; overflow-x: auto; }
+.preview-box { margin: 0 auto; transition: max-width .2s ease; }
+.preview-box.w-phone { max-width: 375px; }
+.preview-box.w-tablet { max-width: 768px; }
+.stream { font: .75rem/1.45 var(--font-mono); color: var(--muted); white-space: pre-wrap; max-height: 220px; overflow: auto; background: var(--bg); border: 1px dashed var(--line); border-radius: 8px; padding: 10px; }
+.note { font: .85rem/1.45 var(--font-ui); color: var(--muted); }
+.note.err { color: var(--danger); }
+.pubbar { position: sticky; bottom: 0; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; box-shadow: 0 -6px 20px -14px rgba(0,0,0,.4); }
+.pubbar .msg { flex: 1; min-width: 180px; font: .85rem/1.4 var(--font-ui); color: var(--muted); }
+.swatches { display: flex; gap: 10px; flex-wrap: wrap; }
+.swatch { display: grid; gap: 6px; padding: 8px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--bg); cursor: pointer; width: 132px; text-align: left; }
+.swatch[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent); }
+.swatch .strip { display: grid; grid-template-columns: repeat(5, 1fr); height: 26px; border-radius: 6px; overflow: hidden; }
+.swatch b { font: 600 .78rem var(--font-ui); }
+.colors { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.color { display: flex; gap: 8px; align-items: center; font: .8rem var(--font-mono); }
+.color input[type=color] { width: 36px; height: 30px; border: 1px solid var(--line); border-radius: 6px; padding: 0; background: none; }
+.color button { font-size: .7rem; border: 0; background: none; color: var(--muted); cursor: pointer; text-decoration: underline; }
+.appr-edit { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) auto; gap: 8px; align-items: start; }
+@media (max-width: 640px) { .appr-edit { grid-template-columns: 1fr; } }
+.preview-site { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 10px; font: 600 .9rem var(--font-ui); z-index: 50; max-width: calc(100vw - 32px); }
+details.adv > summary { cursor: pointer; font: 600 .85rem var(--font-ui); color: var(--accent); }
+.hint { font: .78rem/1.45 var(--font-ui); color: var(--muted); }
+</style>
+<script type="application/json" id="hg-published">{"site":{"title":"Hidden Geometry","tagline":"The invisible maths inside everyday things","intro":"I collect objects, pictures and tricks where geometry quietly does the work: a drill bit that cuts square holes, a coin with seven curved sides, a city whose bridges stumped everyone. Each one comes with something to play with.","eyebrow":"A cabinet of curiosities","footer":"Collected with curiosity. Photos, videos and ideas belong to the makers linked on each page.","palette":"blueprint","overrides":{"light":{},"dark":{}},"mode":"auto","fonts":{"display":"Familjen Grotesk","body":"Source Serif 4","mono":"JetBrains Mono"},"scale":1,"radius":10,"density":"comfortable","width":"standard","pattern":"grid","layout":"feature","cardStyle":"outlined","demoFrame":"card","sort":"newest","motion":true,"show":{"foundAt":true,"tags":true,"filters":true,"sources":true,"prevNext":true,"intro":true},"labels":{"foundAt":"Found at","sources":"Where I found it","back":"All pieces","empty":"Nothing here yet. New pieces are on their way."}},"pieces":[{"id":"cicadas-and-prime-numbers-idea","title":"Cicadas and prime numbers","foundAt":"a YouTube video","hook":"Why do some cicadas wait exactly 13 or 17 years underground? Their calendar may be a clever piece of prime-number defence.","story":"Periodical cicadas spend years underground, then all emerge together. In North America, the cycles are **13 or 17 years**, both prime numbers. We found this idea in a YouTube video called \"Cicada's love for prime numbers\", and it's one you can test yourself.\n\nHere is the picture to draw. Make a 100-year timeline. Mark a dot every time the cicadas emerge. Now mark a different colour of dot for a predator that peaks every 2, 3, 4, 5 or 6 years. Wherever the dots land in the same year, that's a **clash**: a feast for the predator.\n\nA cycle clashes with another whenever the years share a factor. A 12-year cicada meets a 2, 3, 4 or 6-year predator again and again, because 12 divides evenly by all of them. A 15-year cicada clashes with 3 and 5-year predators. Even a 9-year cycle meets 3-year predators every time. An odd number isn't safe if it has small factors. A prime has none to share, so a 13 or 17-year cicada only meets a predator every **cycle × predator** years. A 13-year cicada and a 4-year predator meet just once in 52 years.\n\nTo see it, build a simple tool: pick a cicada cycle from 5 to 20, pick a predator cycle from 2 to 6, and count the clashes in 100 years. Try 12, 14, 15 and 16, then 13 and 17. The primes will show the fewest clashes. Note that 7 and 11 are prime too, so they also do well, but the longer cycles of 13 and 17 give predators fewer chances still. This is a neat explanation rather than a proven one, but the patterns in the numbers are real.","tags":["nature","numbers"],"sources":[{"label":"Cicada's love for prime numbers","url":"https://www.youtube.com/watch?v=nyLyvpn4ojs&t=17s"}],"demo":"\u003cdiv class=\"hgc-cicada\">\n\u003cstyle>\n.hgc-cicada{padding:16px;font-family:var(--font-body);color:var(--fg);background:var(--panel);border-radius:var(--radius);box-sizing:border-box;max-width:100%;overflow:hidden}\n.hgc-cicada *{box-sizing:border-box}\n.hgc-cicada h3{font-family:var(--font-display);margin:0 0 6px;font-size:1.45rem;line-height:1.2}\n.hgc-cicada p{margin:0 0 10px;line-height:1.45}\n.hgc-cicada .goal{color:var(--muted)}\n.hgc-cicada .goal strong{color:var(--fg)}\n.hgc-cicada .ctl{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:10px 0 4px}\n.hgc-cicada .big{font-family:var(--font-display);font-size:2.4rem;line-height:1;min-width:2.2ch;color:var(--accent)}\n.hgc-cicada .ctl label{font-family:var(--font-ui);font-size:.85rem;color:var(--muted)}\n.hgc-cicada .sl{position:relative;margin:0 0 10px}\n.hgc-cicada .rail{position:absolute;left:0;right:0;top:0;height:28px;pointer-events:none}\n.hgc-cicada .trk{position:absolute;left:11px;right:11px;top:12px;height:4px;background:var(--line);border-radius:2px}\n.hgc-cicada .dot{position:absolute;top:14px;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:var(--muted)}\n.hgc-cicada .dot.on{background:var(--accent)}\n.hgc-cicada input[type=range]{-webkit-appearance:none;appearance:none;position:relative;z-index:1;display:block;width:100%;height:28px;margin:0;padding:0;background:transparent;cursor:pointer}\n.hgc-cicada input[type=range]:focus{outline:none}\n.hgc-cicada input[type=range]:focus-visible{outline:2px solid var(--accent2);outline-offset:3px;border-radius:4px}\n.hgc-cicada input[type=range]::-webkit-slider-runnable-track{height:4px;background:transparent;border:0}\n.hgc-cicada input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;box-sizing:border-box;width:22px;height:22px;margin-top:-9px;border-radius:50%;background:var(--accent);border:3px solid var(--panel);box-shadow:0 0 0 1px var(--accent)}\n.hgc-cicada input[type=range]::-moz-range-track{height:4px;background:transparent;border:0}\n.hgc-cicada input[type=range]::-moz-range-thumb{box-sizing:border-box;width:22px;height:22px;border-radius:50%;background:var(--accent);border:3px solid var(--panel);box-shadow:0 0 0 1px var(--accent)}\n.hgc-cicada .ticks{position:relative;height:20px;margin-top:2px}\n.hgc-cicada .tick{position:absolute;top:0;transform:translateX(-50%);font-family:var(--font-mono);font-size:11px;color:var(--muted);cursor:pointer;user-select:none;padding:0 1px;line-height:20px}\n.hgc-cicada .tick.on{color:var(--accent);font-weight:700}\n.hgc-cicada.narrow .tick.ev:not(.on){display:none}\n.hgc-cicada .preds{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0 10px;font-family:var(--font-ui);font-size:.85rem;color:var(--muted)}\n.hgc-cicada svg{width:100%;height:auto;display:block}\n.hgc-cicada .lbl{font-family:var(--font-ui);font-size:12px;fill:var(--muted)}\n.hgc-cicada .lbl.you{fill:var(--accent);font-weight:700}\n.hgc-cicada .track{stroke:var(--line);stroke-width:1}\n.hgc-cicada .dotP{fill:var(--muted)}\n.hgc-cicada .dotC{fill:var(--accent)}\n.hgc-cicada .ring{fill:none;stroke:var(--accent2);stroke-width:2.5}\n.hgc-cicada .vline{stroke:var(--accent2);stroke-width:1.5;stroke-dasharray:3 2}\n.hgc-cicada .cur{stroke:var(--fg);stroke-width:1;opacity:.35}\n.hgc-cicada .cnt{font-family:var(--font-mono);font-size:13px;fill:var(--muted)}\n.hgc-cicada .cnt.hot{fill:var(--accent2);font-weight:700}\n.hgc-cicada .score{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-family:var(--font-ui);margin:8px 0 4px}\n.hgc-cicada .score b{font-family:var(--font-display);font-size:2rem;color:var(--accent2);line-height:1}\n.hgc-cicada .verdict{font-weight:700}\n.hgc-cicada .verdict.win{color:var(--accent)}\n.hgc-cicada .hg-caption{min-height:3em;margin:4px 0 12px}\n.hgc-cicada .reveal{border-top:1px solid var(--line);margin-top:14px;padding-top:12px}\n.hgc-cicada .reveal[hidden]{display:none}\n.hgc-cicada .bar{fill:var(--line)}\n.hgc-cicada .bar.prime{fill:var(--accent2)}\n.hgc-cicada .bar.sel{stroke:var(--fg);stroke-width:2}\n.hgc-cicada .bsvg g{cursor:pointer}\n.hgc-cicada .chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}\n.hgc-cicada .chip{font-family:var(--font-mono);font-size:.8rem;border:1px solid var(--line);border-radius:999px;padding:3px 9px}\n.hgc-cicada .chip.bad{border-color:var(--accent2);color:var(--accent2)}\n.hgc-cicada .key{font-family:var(--font-ui);font-size:.8rem;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;margin:4px 0}\n.hgc-cicada .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}\n\u003c/style>\n\n\u003ch3>Be the cicada: dodge the predators\u003c/h3>\n\u003cp class=\"goal\">Predators boom every 2–6 years. You sleep underground for 8–25 years, then all pop out together. Pick your cycle so you meet predators as rarely as possible in 100 years. \u003cstrong class=\"target\">\u003c/strong>\u003c/p>\n\n\u003cdiv class=\"ctl\">\n  \u003cspan class=\"big cval\">12\u003c/span>\n  \u003clabel for=\"hgcC\">years underground\u003c/label>\n\u003c/div>\n\u003cdiv class=\"sl\">\n  \u003cdiv class=\"rail\" aria-hidden=\"true\">\u003ci class=\"trk\">\u003c/i>\u003cspan class=\"dots\">\u003c/span>\u003c/div>\n  \u003cinput id=\"hgcC\" class=\"cin\" type=\"range\" min=\"8\" max=\"25\" step=\"1\" value=\"12\" aria-label=\"Cicada cycle in years\">\n  \u003cdiv class=\"ticks\" aria-hidden=\"true\">\u003c/div>\n\u003c/div>\n\n\u003cdiv class=\"preds\">Predator cycles:\n  \u003cdiv class=\"hg-seg pseg\" role=\"group\" aria-label=\"Predator cycles\">\u003c/div>\n\u003c/div>\n\n\u003cdiv class=\"tl\">\u003csvg class=\"tsvg\" role=\"img\" aria-label=\"100-year timeline of cicada and predator emergences\">\u003c/svg>\u003c/div>\n\n\u003cdiv class=\"score\">\u003cspan>Clashes in 100 years:\u003c/span>\u003cb class=\"tot\">0\u003c/b>\u003cspan class=\"verdict\">\u003c/span>\u003c/div>\n\u003cp class=\"hg-caption cap\">\u003c/p>\n\n\u003cdiv class=\"hg-row\">\u003cbutton class=\"hg-primary rbtn\" type=\"button\" aria-expanded=\"false\">Reveal the trick\u003c/button>\u003c/div>\n\n\u003cdiv class=\"reveal\" hidden>\n  \u003cp>\u003cstrong>Two cycles meet at the first year both fit into.\u003c/strong> If they share a factor, that comes early. A prime shares no factor with 2–6, so the first meeting is cicada × predator years away.\u003c/p>\n  \u003cdiv class=\"chips mchips\">\u003c/div>\n  \u003csvg class=\"bsvg\" role=\"img\" aria-label=\"Clashes for every cycle from 8 to 25 years\">\u003c/svg>\n  \u003cdiv class=\"key\">\u003cspan>\u003ci class=\"sw\" style=\"background:var(--accent2)\">\u003c/i>prime\u003c/span>\u003cspan>\u003ci class=\"sw\" style=\"background:var(--line)\">\u003c/i>not prime\u003c/span>\u003cspan>Tap a bar to try it\u003c/span>\u003c/div>\n  \u003cp class=\"hg-caption bcap\">\u003c/p>\n\u003c/div>\n\n\u003cscript>\n(function(){\n  var all=document.querySelectorAll('.hgc-cicada'),R=all[all.length-1];\n  if(!R)return;\n  var $=function(s){return R.querySelector(s)};\n  var NS='http://www.w3.org/2000/svg',YRS=100,MIN=8,MAX=25;\n  var st={c:12,p:{2:1,3:1,4:1,5:1,6:1}},raf=0;\n  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;\n\n  function gcd(a,b){return b?gcd(b,a%b):a}\n  function lcm(a,b){return a/gcd(a,b)*b}\n  function isPrime(n){if(n\u003c2)return false;for(var i=2;i*i\u003c=n;i++)if(n%i===0)return false;return true}\n  function factor(n){var f=[],d=2;while(n>1){while(n%d===0){f.push(d);n/=d}d++}return f.join('×')}\n  function act(){return [2,3,4,5,6].filter(function(p){return st.p[p]})}\n  function clash(c,p){return Math.floor(YRS/lcm(c,p))}\n  function total(c){return act().reduce(function(s,p){return s+clash(c,p)},0)}\n  function best(){var m=1e9;for(var c=MIN;c\u003c=MAX;c++)m=Math.min(m,total(c));return m}\n  function bestCycles(){var m=best(),r=[];for(var c=MIN;c\u003c=MAX;c++)if(total(c)===m)r.push(c);return r}\n\n  function setNarrow(){R.classList.toggle('narrow',R.clientWidth\u003c560)}\n  setNarrow();\n\n  // slider dots + year numbers, placed exactly where the thumb can stop\n  var dotsEl=$('.dots'),ticksEl=$('.ticks'),dots=[],ticks=[];\n  for(var v=MIN;v\u003c=MAX;v++){\n    var k=(v-MIN)/(MAX-MIN),pos='calc(11px + (100% - 22px) * '+k+')';\n    var d=document.createElement('i');d.className='dot';d.style.left=pos;dotsEl.appendChild(d);dots.push(d);\n    var t=document.createElement('span');t.style.left=pos;t.textContent=v;\n    (function(val){t.addEventListener('click',function(){setC(val)})})(v);\n    ticksEl.appendChild(t);ticks.push(t);\n  }\n  function markSlider(){\n    for(var i=0;i\u003cdots.length;i++){\n      var val=MIN+i;\n      dots[i].className='dot'+(val\u003c=st.c?' on':'');\n      ticks[i].className='tick'+(val%2?'':' ev')+(val===st.c?' on':'');\n    }\n  }\n\n  // predator toggle buttons\n  var seg=$('.pseg');\n  [2,3,4,5,6].forEach(function(p){\n    var b=document.createElement('button');b.type='button';b.textContent=p+'y';\n    b.setAttribute('aria-pressed','true');\n    b.addEventListener('click',function(){st.p[p]=st.p[p]?0:1;b.setAttribute('aria-pressed',st.p[p]?'true':'false');update(true)});\n    seg.appendChild(b);\n  });\n\n  function el(tag,a,txt){var e=document.createElementNS(NS,tag);for(var k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e}\n\n  var tsvg=$('.tsvg'),anim=[],rowCnt=[],cursor;\n  function drawTimeline(animate){\n    cancelAnimationFrame(raf);\n    var W=Math.max(300,$('.tl').clientWidth||600),ps=act(),c=st.c;\n    var rowH=30,top=14,L=W\u003c420?54:70,Rp=34,pw=W-L-Rp;\n    var H=top+(ps.length+1)*rowH+20;\n    tsvg.setAttribute('viewBox','0 0 '+W+' '+H);\n    while(tsvg.firstChild)tsvg.removeChild(tsvg.firstChild);\n    anim=[];rowCnt=[];\n    function x(y){return L+(y/YRS)*pw}\n    var y0=top+rowH/2;\n    [0,25,50,75,100].forEach(function(t){\n      tsvg.appendChild(el('text',{x:x(t),y:H-4,'text-anchor':t===0?'start':t===100?'end':'middle','class':'lbl'},t===0?'yr 0':t));\n    });\n    tsvg.appendChild(el('line',{x1:L,x2:L+pw,y1:y0,y2:y0,'class':'track'}));\n    tsvg.appendChild(el('text',{x:4,y:y0+4,'class':'lbl you'},'you '+c+'y'));\n    var g=el('g',{});tsvg.appendChild(g);\n    ps.forEach(function(p,i){\n      var yy=top+(i+1.5)*rowH;\n      tsvg.appendChild(el('line',{x1:L,x2:L+pw,y1:yy,y2:yy,'class':'track'}));\n      tsvg.appendChild(el('text',{x:4,y:yy+4,'class':'lbl'},(W\u003c420?'':'pred ')+p+'y'));\n      for(var t=p;t\u003c=YRS;t+=p){var d=el('circle',{cx:x(t),cy:yy,r:2.6,'class':'dotP'});tsvg.appendChild(d);anim.push([t,d])}\n      var m=lcm(c,p);\n      for(t=m;t\u003c=YRS;t+=m){\n        var v=el('line',{x1:x(t),x2:x(t),y1:y0,y2:yy,'class':'vline'});\n        var r1=el('circle',{cx:x(t),cy:yy,r:6.5,'class':'ring'});\n        var r2=el('circle',{cx:x(t),cy:y0,r:8.5,'class':'ring'});\n        g.appendChild(v);tsvg.appendChild(r1);tsvg.appendChild(r2);\n        anim.push([t,v],[t,r1],[t,r2]);\n      }\n      var ct=el('text',{x:W-4,y:yy+4,'text-anchor':'end','class':'cnt'},'0');\n      tsvg.appendChild(ct);rowCnt.push([p,m,ct]);\n    });\n    for(var t=c;t\u003c=YRS;t+=c){var d=el('circle',{cx:x(t),cy:y0,r:5,'class':'dotC'});tsvg.appendChild(d);anim.push([t,d])}\n    cursor=el('line',{x1:L,x2:L,y1:top,y2:H-18,'class':'cur'});tsvg.appendChild(cursor);\n\n    function frame(T){\n      anim.forEach(function(a){a[1].style.opacity=a[0]\u003c=T?1:0});\n      var sum=0;\n      rowCnt.forEach(function(r){var n=Math.floor(T/r[1]);sum+=n;r[2].textContent=n;r[2].setAttribute('class','cnt'+(n?' hot':''))});\n      $('.tot').textContent=sum;\n      cursor.setAttribute('x1',x(T));cursor.setAttribute('x2',x(T));\n      cursor.style.opacity=T>=YRS?0:'';\n    }\n    if(!animate||reduce){frame(YRS);return}\n    var s0=performance.now(),D=1300;\n    frame(0);\n    function step(ts){var k=Math.min(1,Math.max(0,(ts-s0)/D));frame(Math.floor(k*YRS));if(k\u003c1)raf=requestAnimationFrame(step)}\n    raf=requestAnimationFrame(step);\n  }\n\n  function caption(){\n    var c=st.c,ps=act();\n    if(!ps.length)return 'No predators switched on. Turn some back on to see the danger.';\n    var worst=ps.slice().sort(function(a,b){return clash(c,b)-clash(c,a)})[0];\n    if(isPrime(c))return c+' is prime: it can’t be split into equal smaller chunks. So a '+worst+'-year predator only lines up with you every '+c+'×'+worst+' = '+(c*worst)+' years.';\n    var divs=ps.filter(function(p){return c%p===0});\n    var odd=c%2?' Being odd doesn’t save you: what matters is having no small factors.':'';\n    if(divs.length)return c+' = '+factor(c)+'. Predators on '+divs.join(', ')+' years fit neatly into '+c+', so they meet you every '+c+' years.'+odd;\n    var sh=ps.filter(function(p){return gcd(c,p)>1})[0];\n    if(sh)return c+' = '+factor(c)+' shares a factor with '+sh+', so you meet every '+lcm(c,sh)+' years, not '+(c*sh)+'.'+odd;\n    return c+' = '+factor(c)+' shares no factor with these predators, so meetings are rare.';\n  }\n\n  var bsvg=$('.bsvg');\n  function drawBars(){\n    var W=Math.max(300,$('.reveal').clientWidth||600),H=170,ps=act();\n    bsvg.setAttribute('viewBox','0 0 '+W+' '+H);\n    while(bsvg.firstChild)bsvg.removeChild(bsvg.firstChild);\n    var n=MAX-MIN+1,mx=1,vals=[];\n    for(var c=MIN;c\u003c=MAX;c++){var v=total(c);vals.push(v);mx=Math.max(mx,v)}\n    var bw=W/n,base=H-20,hmax=H-44,fs=bw\u003c28?'10px':'';\n    vals.forEach(function(v,i){\n      var c=MIN+i,h=v/mx*hmax,g=el('g',{'data-c':c});\n      g.appendChild(el('rect',{x:i*bw+bw*.15,y:base-h,width:bw*.7,height:Math.max(h,1),rx:2,'class':'bar'+(isPrime(c)?' prime':'')+(c===st.c?' sel':'')}));\n      var t1=el('text',{x:i*bw+bw/2,y:base-h-5,'text-anchor':'middle','class':'cnt'+(c===st.c?' hot':'')},v);\n      var t2=el('text',{x:i*bw+bw/2,y:H-4,'text-anchor':'middle','class':'lbl'+(c===st.c?' you':'')},c);\n      if(fs){t1.style.fontSize=fs;t2.style.fontSize=fs}\n      g.appendChild(t1);g.appendChild(t2);\n      g.appendChild(el('title',{},c+' years: '+v+' clashes'));\n      g.addEventListener('click',function(){setC(c)});\n      bsvg.appendChild(g);\n    });\n    var mc=$('.mchips');mc.textContent='';\n    ps.forEach(function(p){\n      var s=document.createElement('span'),m=lcm(st.c,p);\n      s.className='chip'+(m\u003cst.c*p?' bad':'');\n      s.textContent=st.c+' & '+p+'y: meet every '+m+' yrs';\n      mc.appendChild(s);\n    });\n    var bc=$('.bcap');\n    if(!ps.length){bc.textContent='Switch on some predators to compare cycles.';return}\n    var bs=bestCycles();\n    bc.textContent='Primes 11, 13, 17, 19 and 23 dip low. 9, 15, 21 and 25 are odd but split into 3s and 5s, so they still get caught. Here '+bs.join(' and ')+' do'+(bs.length===1?'es':'')+' best. Longer primes are safer, but years underground are risky too, and real cicadas settled on 13 and 17. (A leading explanation, not proven fact.)';\n  }\n\n  function setC(c){st.c=c;$('.cin').value=c;update(true)}\n\n  function update(animate){\n    var c=st.c,ps=act();\n    $('.cval').textContent=c;\n    markSlider();\n    var t=best(),tot=total(c),v=$('.verdict');\n    $('.target').textContent=ps.length?'Target: '+t+' clash'+(t===1?'':'es')+' or fewer.':'';\n    if(!ps.length){v.textContent='';v.className='verdict'}\n    else if(tot\u003c=t){v.textContent='You found the safest cycle!';v.className='verdict win'}\n    else{v.textContent=tot>=t*3?'Eaten a lot.':'Getting closer…';v.className='verdict'}\n    $('.cap').textContent=caption();\n    drawTimeline(animate);\n    if(!$('.reveal').hidden)drawBars();\n  }\n\n  $('.cin').addEventListener('input',function(e){var n=+e.target.value;if(n!==st.c){st.c=n;update(true)}});\n  $('.rbtn').addEventListener('click',function(){\n    var r=$('.reveal'),open=r.hidden;r.hidden=!open;\n    this.textContent=open?'Hide the trick':'Reveal the trick';\n    this.setAttribute('aria-expanded',open?'true':'false');\n    if(open)drawBars();\n  });\n\n  var rt;\n  function onResize(){clearTimeout(rt);rt=setTimeout(function(){setNarrow();drawTimeline(false);if(!$('.reveal').hidden)drawBars()},120)}\n  if(window.ResizeObserver)new ResizeObserver(onResize).observe(R);else window.addEventListener('resize',onResize);\n\n  update(true);\n})();\n\u003c/script>\n\u003c/div>","date":1795101262044,"order":11},{"id":"the-seven-bridges-of-ko-nigsberg-koni","title":"The seven bridges of Königsberg","foundAt":"a puzzle book, and an old city map","hook":"The people of Königsberg tried for years to walk across all seven bridges exactly once. A mathematician proved they never could, and invented a new kind of maths doing it.","story":"In the 1700s the Prussian city of Königsberg (today Kaliningrad) sat on both banks of a river with two islands, joined by seven bridges. A Sunday pastime: find a walk that crosses every bridge **exactly once**. Nobody managed it.\n\nIn 1736 Leonhard Euler showed why. He ignored streets, distances and shapes, and kept only *which places connect to which*. Every time you walk through a place, you use two bridges: one in, one out. So every place you merely pass through needs an **even** number of bridges. Only your starting point and your end point may be odd.\n\nKönigsberg had four places, and all four had an odd number of bridges. Case closed. That way of thinking, dots joined by lines, is now called **graph theory**. It routes your parcels, your phone calls and your map directions.\n\nTry removing one bridge or building a new one above, and watch the walk become possible.","tags":["puzzles","graphs"],"sources":[{"label":"Seven Bridges of Königsberg puzzle (Puzzlewocky)","url":"https://puzzlewocky.com/brain-teasers/unsolvable-puzzles/seven-bridges-of-konigsberg-puzzle/"},{"label":"Euler's original problem (Wikipedia)","url":"https://en.wikipedia.org/wiki/Seven_Bridges_of_K%C3%B6nigsberg"}],"demo":"\u003cstyle>\n.kb{display:grid;gap:12px;padding:16px}\n.kb svg{width:100%;height:auto;display:block;border-radius:var(--radius);border:1px solid var(--line);touch-action:manipulation}\n.kb .ctrls{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}\n.kb .status{font:600 16px/1.4 var(--font-body);min-height:2.8em}\n.kb .land{cursor:pointer}\n.kb .bridge{cursor:pointer}\n.kb .bridge:focus-visible{outline:none}\n.kb .bridge:focus-visible rect{stroke:var(--accent);stroke-width:4}\n\u003c/style>\n\u003cdiv class=\"kb\">\n  \u003cdiv class=\"ctrls\">\n    \u003cdiv class=\"hg-seg\" role=\"group\" aria-label=\"Mode\">\n      \u003cbutton id=\"mWalk\" aria-pressed=\"true\">Take a walk\u003c/button>\n      \u003cbutton id=\"mEdit\" aria-pressed=\"false\">Add or remove bridges\u003c/button>\n    \u003c/div>\n    \u003cbutton id=\"reset\">Start over\u003c/button>\n    \u003clabel class=\"hg-caption\">\u003cinput type=\"checkbox\" id=\"count\"> Count bridges at each place\u003c/label>\n  \u003c/div>\n  \u003csvg id=\"map\" viewBox=\"0 0 640 360\" role=\"img\" aria-label=\"Map of Königsberg: two river banks, an island and an eastern land, joined by bridges\">\u003c/svg>\n  \u003cdiv class=\"status\" id=\"status\" aria-live=\"polite\">\u003c/div>\n  \u003cdiv class=\"hg-caption\" id=\"rule\">\u003c/div>\n\u003c/div>\n\u003cscript>\n(() => {\n  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();\n  const C = { fg: css('--fg'), muted: css('--muted'), accent: css('--accent'), accent2: css('--accent2'), line: css('--line'), bg: css('--bg'), panel: css('--panel') };\n  const water = '#4a90c8';\n  const LANDS = { A: 'the north bank', B: 'the south bank', C: 'the island', D: 'the east side' };\n  const BADGE = { A: [80, 60], B: [80, 300], C: [230, 180], D: [520, 180] };\n  const B0 = [\n    { id: 'a', u: 'A', v: 'C', x: 170, y: 116, w: 22, h: 46, on: true },\n    { id: 'b', u: 'A', v: 'C', x: 290, y: 116, w: 22, h: 46, on: true },\n    { id: 'c', u: 'B', v: 'C', x: 170, y: 198, w: 22, h: 46, on: true },\n    { id: 'd', u: 'B', v: 'C', x: 290, y: 198, w: 22, h: 46, on: true },\n    { id: 'e', u: 'C', v: 'D', x: 316, y: 169, w: 158, h: 22, on: true },\n    { id: 'f', u: 'A', v: 'D', x: 540, y: 116, w: 22, h: 28, on: true },\n    { id: 'g', u: 'B', v: 'D', x: 540, y: 216, w: 22, h: 28, on: true },\n    { id: 'h', u: 'A', v: 'D', x: 600, y: 116, w: 22, h: 28, on: false },\n    { id: 'i', u: 'B', v: 'C', x: 230, y: 206, w: 22, h: 38, on: false },\n  ];\n  let bridges = B0.map(b => ({ ...b })), mode = 'walk', at = null, used = [], trailPts = [];\n  const svg = document.getElementById('map'), NS = 'http://www.w3.org/2000/svg';\n  const el = (t, a, p = svg) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); p.appendChild(e); return e; };\n  const deg = () => { const d = { A: 0, B: 0, C: 0, D: 0 }; bridges.filter(b => b.on).forEach(b => { d[b.u]++; d[b.v]++; }); return d; };\n  function connected() {\n    const on = bridges.filter(b => b.on); if (!on.length) return true;\n    const seen = new Set([on[0].u]); let grew = true;\n    while (grew) { grew = false; on.forEach(b => { if (seen.has(b.u) !== seen.has(b.v)) { seen.add(b.u); seen.add(b.v); grew = true; } }); }\n    return on.every(b => seen.has(b.u));\n  }\n  function verdict() {\n    const d = deg(), odd = Object.keys(d).filter(k => d[k] % 2);\n    if (!connected()) return 'These bridges fall into separate groups, so no single walk can reach them all.';\n    if (odd.length === 0) return 'Every place has an even number of bridges, so a walk can cross each bridge once and end where it started.';\n    if (odd.length === 2) return 'Exactly two places have an odd count (' + odd.map(k => LANDS[k]).join(' and ') + '). A walk is possible, but it must start at one of them and end at the other.';\n    return odd.length + ' places have an odd number of bridges. Every place you pass through uses bridges in pairs, one in and one out, so at most two places can be odd. No walk works.';\n  }\n  function draw() {\n    svg.innerHTML = '';\n    el('rect', { x: 0, y: 0, width: 640, height: 360, fill: C.panel });\n    el('rect', { x: 0, y: 120, width: 640, height: 120, fill: water, opacity: .55 });\n    const land = (k, node) => { node.setAttribute('class', 'land'); node.setAttribute('fill', at === k ? C.accent + '30' : C.bg); node.setAttribute('stroke', C.line); node.setAttribute('stroke-width', 2); node.addEventListener('click', () => pickLand(k)); };\n    land('A', el('rect', { x: 0, y: 0, width: 640, height: 120 }));\n    land('B', el('rect', { x: 0, y: 240, width: 640, height: 120 }));\n    land('C', el('ellipse', { cx: 230, cy: 180, rx: 92, ry: 34 }));\n    land('D', el('path', { d: 'M470 140 H640 V220 H470 Q450 180 470 140Z' }));\n    Object.entries({ A: 'North bank', B: 'South bank', C: 'Island', D: 'East' }).forEach(([k, t]) => {\n      const [x, y] = k === 'C' ? [230, 185] : k === 'D' ? [580, 212] : [320, k === 'A' ? 66 : 306];\n      const tx = el('text', { x, y, 'text-anchor': 'middle', fill: C.muted, 'font-size': 15, 'font-family': css('--font-mono'), 'pointer-events': 'none' }); tx.textContent = t;\n    });\n    bridges.forEach(b => {\n      if (!b.on && mode !== 'edit') return;\n      const g = el('g', { class: 'bridge', tabindex: 0, role: 'button', 'aria-label': (b.on ? 'Bridge between ' : 'Possible new bridge between ') + LANDS[b.u] + ' and ' + LANDS[b.v] });\n      const isUsed = used.includes(b.id);\n      el('rect', { x: b.x, y: b.y, width: b.w, height: b.h, rx: 3, fill: !b.on ? 'none' : isUsed ? C.accent : C.accent2, stroke: b.on ? C.fg : C.muted, 'stroke-width': 2, 'stroke-dasharray': b.on ? '' : '5 4' }, g);\n      if (!b.on) { const t = el('text', { x: b.x + b.w / 2, y: b.y + b.h / 2 + 6, 'text-anchor': 'middle', fill: C.muted, 'font-size': 18 }, g); t.textContent = '+'; }\n      const go = () => clickBridge(b);\n      g.addEventListener('click', go); g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });\n    });\n    if (trailPts.length > 1) el('polyline', { points: trailPts.map(p => p.join(',')).join(' '), fill: 'none', stroke: C.accent, 'stroke-width': 3, 'stroke-dasharray': '2 6', 'stroke-linecap': 'round', 'pointer-events': 'none' });\n    if (at) { const [x, y] = BADGE[at]; el('circle', { cx: x + (at === 'C' ? -50 : 0), cy: y, r: 12, fill: C.accent, stroke: C.bg, 'stroke-width': 3, 'pointer-events': 'none' }); }\n    if (document.getElementById('count').checked) {\n      const d = deg();\n      Object.keys(d).forEach(k => { const [x, y] = BADGE[k]; const bx = k === 'C' ? x + 52 : k === 'D' ? x + 95 : x + 480; const odd = d[k] % 2;\n        el('circle', { cx: bx, cy: y, r: 17, fill: odd ? '#d9483b' : C.accent, 'pointer-events': 'none' });\n        const t = el('text', { x: bx, y: y + 6, 'text-anchor': 'middle', fill: '#fff', 'font-size': 17, 'font-weight': 700, 'font-family': css('--font-mono'), 'pointer-events': 'none' }); t.textContent = d[k]; });\n    }\n    status();\n  }\n  const mid = b => [b.x + b.w / 2, b.y + b.h / 2];\n  const landPt = k => k === 'C' ? [230, 180] : k === 'D' ? [540, 180] : [null, k === 'A' ? 80 : 280];\n  function pickLand(k) { if (mode !== 'walk') return; if (used.length) return; at = k; trailPts = []; draw(); }\n  function clickBridge(b) {\n    if (mode === 'edit') { b.on = !b.on; used = []; at = null; trailPts = []; draw(); return; }\n    if (!b.on) return;\n    if (!at) { at = b.u; }\n    if (used.includes(b.id)) { flash('You already crossed that bridge.'); return; }\n    if (b.u !== at && b.v !== at) { flash('That bridge does not touch ' + LANDS[at] + '. Walk only from where you are.'); return; }\n    const to = b.u === at ? b.v : b.u, m = mid(b);\n    const from = landPt(at); if (!trailPts.length) trailPts.push([from[0] ?? m[0], from[1]]);\n    trailPts.push(m); const t = landPt(to); trailPts.push([t[0] ?? m[0], t[1]]);\n    used.push(b.id); at = to; draw();\n  }\n  let flashMsg = '';\n  function flash(m) { flashMsg = m; status(); setTimeout(() => { flashMsg = ''; status(); }, 2200); }\n  function status() {\n    const s = document.getElementById('status'), on = bridges.filter(b => b.on);\n    document.getElementById('rule').textContent = verdict();\n    if (flashMsg) { s.textContent = flashMsg; return; }\n    if (mode === 'edit') { s.textContent = 'Tap a bridge to remove it, or a dashed + to build one. ' + on.length + ' bridges now.'; return; }\n    if (!at) { s.textContent = 'Pick a place to start, then cross bridges one at a time. Can you cross all ' + on.length + ' exactly once?'; return; }\n    const left = on.filter(b => !used.includes(b.id)), next = left.filter(b => b.u === at || b.v === at);\n    if (!left.length) s.textContent = 'You crossed every bridge exactly once. Euler would be delighted.';\n    else if (!next.length) s.textContent = 'Stuck on ' + LANDS[at] + ' with ' + left.length + ' bridge' + (left.length > 1 ? 's' : '') + ' still uncrossed.';\n    else s.textContent = 'Crossed ' + used.length + ' of ' + on.length + '. You are on ' + LANDS[at] + '.';\n  }\n  function setMode(m) { mode = m; document.getElementById('mWalk').setAttribute('aria-pressed', m === 'walk'); document.getElementById('mEdit').setAttribute('aria-pressed', m === 'edit'); used = []; at = null; trailPts = []; draw(); }\n  document.getElementById('mWalk').onclick = () => setMode('walk');\n  document.getElementById('mEdit').onclick = () => setMode('edit');\n  document.getElementById('reset').onclick = () => { used = []; at = null; trailPts = []; draw(); };\n  document.getElementById('count').onchange = draw;\n  draw();\n})();\n\u003c/script>\n","date":1795089000082,"order":2},{"id":"drilling-a-square-hole-reul","title":"Drilling a square hole","foundAt":"a machinist's video, and the 50p coin","hook":"A drill bit can cut an almost perfectly square hole. The trick is a triangle with curved sides.","story":"Draw an equilateral triangle. Put the compass point on one corner and swing an arc between the other two corners. Do that from each corner and you get a **Reuleaux triangle**: a triangle with bulging sides.\n\nIts magic property is **constant width**. Squeeze it between two parallel boards at any angle and the gap is always the same, just like a circle. That is why a plank resting on Reuleaux rollers glides perfectly level, and why engineers checking whether a part is \"round\" cannot rely on calipers alone.\n\nBecause its width matches the side of a square in every direction, it can spin inside a square while touching all four walls. Mount it on a drill with a centre that is allowed to wobble, and it carves out 98.8% of a square. Only the corners stay slightly rounded.\n\n### The coin in your pocket\n\nThe British 50p and 20p coins are **Reuleaux heptagons**: seven curved sides, still constant width. Coin slots measure width, so a seven-sided coin rolls and measures like a round one while looking distinctive.","tags":["curves","objects"],"sources":[{"label":"Drilling a square hole (howround.com video)","url":"http://www.howround.com/"},{"label":"Reuleaux triangle on Wikipedia","url":"https://en.wikipedia.org/wiki/Reuleaux_triangle"},{"label":"How do they design coins with polygons?","url":"https://en.wikipedia.org/wiki/Curve_of_constant_width"}],"demo":"\u003cstyle>\n.rw{display:grid;gap:14px;padding:16px}\n.rw .stage{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}\n.rw .panel{border:1px solid var(--line);border-radius:var(--radius);padding:12px;background:var(--bg);display:grid;gap:8px;min-width:0}\n.rw canvas{width:100%;height:auto;aspect-ratio:1;display:block}\n.rw h4{margin:0;font:600 12px/1.2 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}\n.rw .ctrls{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}\n.rw .big{font:600 15px/1.35 var(--font-body);color:var(--fg)}\n\u003c/style>\n\u003cdiv class=\"rw\">\n  \u003cdiv class=\"ctrls\">\n    \u003cdiv class=\"hg-seg\" role=\"group\" aria-label=\"Shape\">\n      \u003cbutton data-n=\"0\">Circle\u003c/button>\n      \u003cbutton data-n=\"3\" aria-pressed=\"true\">Reuleaux triangle\u003c/button>\n      \u003cbutton data-n=\"5\">Reuleaux pentagon\u003c/button>\n      \u003cbutton data-n=\"7\">Heptagon (50p coin)\u003c/button>\n      \u003cbutton data-n=\"-4\">Square\u003c/button>\n    \u003c/div>\n  \u003c/div>\n  \u003cdiv class=\"ctrls\">\n    \u003cbutton id=\"play\">Pause\u003c/button>\n    \u003clabel class=\"hg-caption\">Turn \u003cinput id=\"turn\" type=\"range\" min=\"0\" max=\"360\" value=\"0\" step=\"1\" aria-label=\"Rotation angle\">\u003c/label>\n    \u003clabel class=\"hg-caption\">\u003cinput type=\"checkbox\" id=\"trace\" checked> Trace a corner\u003c/label>\n  \u003c/div>\n  \u003cdiv class=\"stage\">\n    \u003cdiv class=\"panel\">\u003ch4>Spinning in a square hole\u003c/h4>\u003ccanvas id=\"ca\" width=\"520\" height=\"520\">\u003c/canvas>\u003cdiv class=\"big\" id=\"capA\">\u003c/div>\u003c/div>\n    \u003cdiv class=\"panel\">\u003ch4>Rolling under a plank\u003c/h4>\u003ccanvas id=\"cb\" width=\"520\" height=\"520\">\u003c/canvas>\u003cdiv class=\"big\" id=\"capB\">\u003c/div>\u003c/div>\n  \u003c/div>\n\u003c/div>\n\u003cscript>\n(() => {\n  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();\n  const C = { fg: css('--fg'), muted: css('--muted'), accent: css('--accent'), accent2: css('--accent2'), line: css('--line'), bg: css('--bg'), panel: css('--panel') };\n  const ca = document.getElementById('ca'), cb = document.getElementById('cb');\n  const xa = ca.getContext('2d'), xb = cb.getContext('2d');\n  const W = 300; // shape width in canvas px\n  let n = 3, theta = 0, playing = !matchMedia('(prefers-reduced-motion: reduce)').matches;\n  let trail = [], ctrTrail = [], heights = [], coverage = 0;\n\n  function shape(n, w) {\n    // returns {pts, corner} in local coords (centred), unrotated\n    const pts = [];\n    if (n === 0) { for (let i = 0; i \u003c 180; i++) { const a = i / 180 * Math.PI * 2; pts.push([Math.cos(a) * w / 2, Math.sin(a) * w / 2]); } return { pts, corner: 0 }; }\n    if (n === -4) { const s = w / 2; [[-s,-s],[s,-s],[s,s],[-s,s]].forEach(p => { for (let i = 0; i \u003c 20; i++) pts.push(p); }); return { pts: [[-s,-s],[s,-s],[s,s],[-s,s]], corner: 0 }; }\n    const k = (n - 1) / 2;\n    const R = w / (2 * Math.sin(Math.PI * k / n));\n    const V = [];\n    for (let i = 0; i \u003c n; i++) { const a = -Math.PI / 2 + i * 2 * Math.PI / n; V.push([R * Math.cos(a), R * Math.sin(a)]); }\n    for (let i = 0; i \u003c n; i++) {\n      const A = V[i], B = V[(i + 1) % n], O = V[(i + (n + 1) / 2) % n];\n      let a0 = Math.atan2(A[1] - O[1], A[0] - O[0]), a1 = Math.atan2(B[1] - O[1], B[0] - O[0]);\n      let d = a1 - a0; while (d > Math.PI) d -= 2 * Math.PI; while (d \u003c -Math.PI) d += 2 * Math.PI;\n      const steps = Math.ceil(240 / n);\n      for (let j = 0; j \u003c steps; j++) { const a = a0 + d * j / steps; pts.push([O[0] + w * Math.cos(a), O[1] + w * Math.sin(a)]); }\n    }\n    return { pts, corner: 0 };\n  }\n  let S = shape(3, W);\n  const rot = (p, t) => [p[0] * Math.cos(t) - p[1] * Math.sin(t), p[0] * Math.sin(t) + p[1] * Math.cos(t)];\n  function bbox(P) { let a = Infinity, b = Infinity, c = -Infinity, d = -Infinity; for (const p of P) { a = Math.min(a, p[0]); b = Math.min(b, p[1]); c = Math.max(c, p[0]); d = Math.max(d, p[1]); } return [a, b, c, d]; }\n  const constant = () => n !== -4;\n  function placed(t) {\n    const P = S.pts.map(p => rot(p, t));\n    const [x0, y0, x1, y1] = bbox(P);\n    // constant-width shapes: bbox is always W x W, so pin it to the hole\n    const hx = 110, hy = 110;\n    const dx = constant() ? hx - x0 : 260 - (x0 + x1) / 2, dy = constant() ? hy - y0 : 260 - (y0 + y1) / 2;\n    return { P: P.map(p => [p[0] + dx, p[1] + dy]), c: [dx, dy], corner: [P[0][0] + dx, P[0][1] + dy] };\n  }\n  function computeCoverage() {\n    if (!constant()) { coverage = 0; return; }\n    const oc = document.createElement('canvas'); oc.width = oc.height = 520; const o = oc.getContext('2d');\n    o.fillStyle = '#000';\n    for (let i = 0; i \u003c 360; i += 1) { const { P } = placed(i * Math.PI / 180); o.beginPath(); P.forEach((p, j) => j ? o.lineTo(p[0], p[1]) : o.moveTo(p[0], p[1])); o.closePath(); o.fill(); }\n    const d = o.getImageData(110, 110, W, W).data; let on = 0; for (let i = 3; i \u003c d.length; i += 4) if (d[i] > 127) on++;\n    coverage = on / (W * W);\n  }\n  function path(x, P) { x.beginPath(); P.forEach((p, j) => j ? x.lineTo(p[0], p[1]) : x.moveTo(p[0], p[1])); x.closePath(); }\n  function drawA() {\n    xa.clearRect(0, 0, 520, 520);\n    // hole\n    xa.fillStyle = C.panel; xa.fillRect(0, 0, 520, 520);\n    xa.fillStyle = C.bg; xa.fillRect(110, 110, W, W);\n    xa.strokeStyle = C.fg; xa.lineWidth = 2; xa.strokeRect(110, 110, W, W);\n    const { P, c, corner } = placed(theta);\n    if (document.getElementById('trace').checked) {\n      trail.push(corner); if (trail.length > 400) trail.shift();\n      ctrTrail.push(c); if (ctrTrail.length > 400) ctrTrail.shift();\n      xa.strokeStyle = C.accent2; xa.lineWidth = 2.5; xa.beginPath(); trail.forEach((p, j) => j ? xa.lineTo(p[0], p[1]) : xa.moveTo(p[0], p[1])); xa.stroke();\n      if (constant() && n) { xa.strokeStyle = C.muted; xa.lineWidth = 1; xa.beginPath(); ctrTrail.forEach((p, j) => j ? xa.lineTo(p[0], p[1]) : xa.moveTo(p[0], p[1])); xa.stroke(); }\n    }\n    path(xa, P);\n    xa.fillStyle = constant() ? C.accent + '33' : '#d9483b44'; xa.fill();\n    xa.strokeStyle = constant() ? C.accent : '#d9483b'; xa.lineWidth = 3; xa.stroke();\n    xa.fillStyle = C.accent2; xa.beginPath(); xa.arc(corner[0], corner[1], 6, 0, 7); xa.fill();\n  }\n  function drawB() {\n    xb.clearRect(0, 0, 520, 520); xb.fillStyle = C.panel; xb.fillRect(0, 0, 520, 520);\n    const G = 380; const P = S.pts.map(p => rot(p, theta));\n    const [x0, y0, x1, y1] = bbox(P); const dy = G - y1, dx = 260 - (x0 + x1) / 2;\n    const top = y0 + dy;\n    // ground with moving ticks\n    xb.strokeStyle = C.fg; xb.lineWidth = 2; xb.beginPath(); xb.moveTo(0, G); xb.lineTo(520, G); xb.stroke();\n    const off = (theta * W / 2) % 40; xb.strokeStyle = C.line; xb.lineWidth = 2;\n    for (let x = -off; x \u003c 520; x += 40) { xb.beginPath(); xb.moveTo(x, G + 4); xb.lineTo(x - 10, G + 16); xb.stroke(); }\n    // reference line of the starting plank height\n    xb.setLineDash([6, 6]); xb.strokeStyle = C.muted; xb.lineWidth = 1; xb.beginPath(); xb.moveTo(0, G - W); xb.lineTo(520, G - W); xb.stroke(); xb.setLineDash([]);\n    path(xb, P.map(p => [p[0] + dx, p[1] + dy]));\n    xb.fillStyle = constant() ? C.accent + '33' : '#d9483b44'; xb.fill(); xb.strokeStyle = constant() ? C.accent : '#d9483b'; xb.lineWidth = 3; xb.stroke();\n    xb.fillStyle = C.accent2; xb.fillRect(60, top - 16, 400, 16); xb.strokeStyle = C.fg; xb.lineWidth = 1.5; xb.strokeRect(60, top - 16, 400, 16);\n    // height trace strip\n    heights.push(G - top); if (heights.length > 260) heights.shift();\n    xb.strokeStyle = C.accent; xb.lineWidth = 2; xb.beginPath();\n    heights.forEach((hh, i) => { const x = 130 + i, y = 470 - (hh - W) * 0.9; i ? xb.lineTo(x, y) : xb.moveTo(x, y); }); xb.stroke();\n    xb.fillStyle = C.muted; xb.font = '12px ' + css('--font-mono'); xb.fillText('plank height', 20, 474);\n    const pct = ((G - top) / W - 1) * 100;\n    document.getElementById('capB').textContent = constant()\n      ? 'The plank never moves up or down: every direction measures the same width.'\n      : 'The plank bobs by up to ' + Math.round((Math.SQRT2 - 1) * 100) + '% (now +' + Math.max(0, pct).toFixed(0) + '%). A square is wider across its corners.';\n  }\n  function caption() {\n    const A = document.getElementById('capA');\n    if (n === -4) A.textContent = 'A square can only turn in a square hole if its corners cut through the walls.';\n    else if (n === 0) A.textContent = 'A circle turns smoothly but drills only ' + (coverage * 100).toFixed(1) + '% of the square. The corners stay full.';\n    else A.textContent = 'This shape always touches all four walls while it turns, and sweeps ' + (coverage * 100).toFixed(1) + '% of the square. Watch the yellow corner draw an almost-square.';\n  }\n  function frame() {\n    if (playing) { theta = (theta + 0.012) % (Math.PI * 2); document.getElementById('turn').value = Math.round(theta * 180 / Math.PI); }\n    drawA(); drawB(); requestAnimationFrame(frame);\n  }\n  document.querySelectorAll('[data-n]').forEach(b => b.addEventListener('click', () => {\n    document.querySelectorAll('[data-n]').forEach(x => x.setAttribute('aria-pressed', x === b));\n    n = +b.dataset.n; S = shape(n, W); trail = []; ctrTrail = []; heights = []; computeCoverage(); caption();\n  }));\n  const pb = document.getElementById('play');\n  const setPlay = p => { playing = p; pb.textContent = p ? 'Pause' : 'Play'; };\n  pb.addEventListener('click', () => setPlay(!playing));\n  document.getElementById('turn').addEventListener('input', e => { setPlay(false); theta = e.target.value * Math.PI / 180; });\n  document.getElementById('trace').addEventListener('change', () => { trail = []; ctrTrail = []; });\n  setPlay(playing); computeCoverage(); caption(); frame();\n})();\n\u003c/script>\n","date":1795089001082,"order":1},{"id":"a-map-that-knows-if-a-number-divides-by-7-seve","title":"A map that knows if a number divides by 7","foundAt":"a diagram from Mind Your Decisions","hook":"Walk around a little circle of arrows, one digit at a time. If you finish on YES, your number is divisible by 7.","story":"There is no neat test for 7 like there is for 3 or 9. But there is a **map**. Start on YES. For each digit, step forward that many black arrows. Then take one green arrow and move on to the next digit. After the last digit, if you are back on YES, the number divides by 7.\n\nThe trick is that each circle is a **remainder**. Black arrows add 1. Green arrows multiply by 10, because writing one more digit after a number is the same as multiplying it by 10 and adding the new digit. Since 10 leaves remainder 3 when divided by 7, the green arrow from 1 goes to 3, from 2 goes to 6, and so on.\n\nNothing about this is special to 7. Change the divisor above and the map redraws itself. Computer scientists call machines like this **finite automata**: they read one symbol at a time and only remember which circle they are on.","tags":["numbers","graphs"],"sources":[{"label":"Divisibility by 7 graph (Mind Your Decisions)","url":"https://mindyourdecisions.com/blog/"}],"demo":"\u003cstyle>\n.sv{display:grid;gap:12px;padding:16px}\n.sv .top{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:end}\n.sv label{display:grid;gap:4px}\n.sv input[type=text]{font:600 20px var(--font-mono);width:12ch;max-width:100%;padding:6px 10px;border:1px solid var(--line);border-radius:var(--radius);background:var(--bg);color:var(--fg)}\n.sv .grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px;align-items:start}\n@media (max-width:620px){.sv .grid{grid-template-columns:1fr}}\n.sv svg{width:100%;height:auto;display:block}\n.sv .digits{display:flex;flex-wrap:wrap;gap:4px;font:700 26px var(--font-mono)}\n.sv .digits span{padding:2px 6px;border-radius:6px;color:var(--muted)}\n.sv .digits span.done{color:var(--fg)}\n.sv .digits span.now{background:var(--accent);color:var(--on-accent)}\n.sv .log{font:14px/1.5 var(--font-body);display:grid;gap:6px}\n.sv .result{font:700 18px/1.3 var(--font-body)}\n.sv .key{display:flex;gap:14px;flex-wrap:wrap}\n.sv .key i{display:inline-block;width:22px;height:3px;vertical-align:middle;margin-right:6px}\n\u003c/style>\n\u003cdiv class=\"sv\">\n  \u003cdiv class=\"top\">\n    \u003clabel class=\"hg-caption\">Number \u003cinput id=\"num\" type=\"text\" inputmode=\"numeric\" value=\"3486\" aria-label=\"Number to test\">\u003c/label>\n    \u003clabel class=\"hg-caption\">Divide by \u003cselect id=\"mod\" aria-label=\"Divisor\">\u003c/select>\u003c/label>\n    \u003cbutton id=\"play\" class=\"hg-primary\">Walk it\u003c/button>\n    \u003cbutton id=\"step\">One step\u003c/button>\n    \u003cbutton id=\"rand\">Random number\u003c/button>\n  \u003c/div>\n  \u003cdiv class=\"grid\">\n    \u003csvg id=\"g\" viewBox=\"-230 -230 460 460\" role=\"img\" aria-label=\"Divisibility graph\">\u003c/svg>\n    \u003cdiv class=\"log\">\n      \u003cdiv class=\"digits\" id=\"digits\">\u003c/div>\n      \u003cdiv class=\"key hg-caption\">\u003cspan>\u003ci style=\"background:var(--fg)\">\u003c/i>black: add 1\u003c/span>\u003cspan>\u003ci style=\"background:#2e9b57\">\u003c/i>green: multiply by 10\u003c/span>\u003c/div>\n      \u003cdiv id=\"now\">\u003c/div>\n      \u003cdiv class=\"result\" id=\"result\" aria-live=\"polite\">\u003c/div>\n      \u003cdiv class=\"hg-caption\" id=\"why\">\u003c/div>\n    \u003c/div>\n  \u003c/div>\n\u003c/div>\n\u003cscript>\n(() => {\n  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();\n  const C = { fg: css('--fg'), muted: css('--muted'), accent: css('--accent'), accent2: css('--accent2'), line: css('--line'), bg: css('--bg'), panel: css('--panel'), on: css('--on-accent') || '#fff' };\n  const GREEN = '#2e9b57', NS = 'http://www.w3.org/2000/svg', svg = document.getElementById('g');\n  const sel = document.getElementById('mod'); for (let m = 2; m \u003c= 13; m++) { const o = document.createElement('option'); o.value = m; o.textContent = m; if (m === 7) o.selected = true; sel.appendChild(o); }\n  let M = 7, moves = [], k = 0, pos = 0, timer = null, token, R = 160;\n  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;\n  const P = i => { const a = -Math.PI / 2 + i * 2 * Math.PI / M; return [R * Math.cos(a), R * Math.sin(a)]; };\n  const el = (t, a, p = svg) => { const e = document.createElementNS(NS, t); for (const x in a) e.setAttribute(x, a[x]); p.appendChild(e); return e; };\n  function draw() {\n    svg.innerHTML = '';\n    const defs = el('defs', {});\n    [['ab', C.fg], ['ag', GREEN]].forEach(([id, c]) => { const m = el('marker', { id, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, defs); el('path', { d: 'M0 0 L10 5 L0 10z', fill: c }, m); });\n    const r = M > 9 ? 16 : 20;\n    for (let i = 0; i \u003c M; i++) {\n      // black arrow i -> i+1 along the outer arc\n      const a0 = -Math.PI / 2 + i * 2 * Math.PI / M, a1 = a0 + 2 * Math.PI / M, pad = (r + 4) / R;\n      const s = [R * Math.cos(a0 + pad), R * Math.sin(a0 + pad)], e = [R * Math.cos(a1 - pad), R * Math.sin(a1 - pad)];\n      el('path', { d: `M${s} A${R} ${R} 0 0 1 ${e}`, fill: 'none', stroke: C.fg, 'stroke-width': 1.6, 'marker-end': 'url(#ab)' });\n      // green arrow i -> 10i mod M\n      const j = (10 * i) % M, [x, y] = P(i);\n      if (j === i) { const ux = x / R, uy = y / R; el('path', { d: `M${x + ux * r - uy * 8} ${y + uy * r + ux * 8} C ${x + ux * (r + 46) - uy * 26} ${y + uy * (r + 46) + ux * 26}, ${x + ux * (r + 46) + uy * 26} ${y + uy * (r + 46) - ux * 26}, ${x + ux * r + uy * 8} ${y + uy * r - ux * 8}`, fill: 'none', stroke: GREEN, 'stroke-width': 2, 'marker-end': 'url(#ag)' }); }\n      else { const [X, Y] = P(j), d = Math.hypot(X - x, Y - y), ux = (X - x) / d, uy = (Y - y) / d; el('line', { x1: x + ux * r, y1: y + uy * r, x2: X - ux * (r + 2), y2: Y - uy * (r + 2), stroke: GREEN, 'stroke-width': 2, opacity: .85, 'marker-end': 'url(#ag)' }); }\n    }\n    for (let i = 0; i \u003c M; i++) {\n      const [x, y] = P(i);\n      el('circle', { cx: x, cy: y, r, fill: i === 0 ? C.accent : C.bg, stroke: C.fg, 'stroke-width': 2 });\n      const t = el('text', { x, y: y + 5, 'text-anchor': 'middle', 'font-size': i === 0 ? 12 : 14, 'font-weight': 700, 'font-family': css('--font-mono'), fill: i === 0 ? C.on : C.fg }); t.textContent = i === 0 ? 'YES' : i;\n    }\n    token = el('circle', { r: 9, fill: C.accent2, stroke: C.fg, 'stroke-width': 2 });\n    place(pos);\n  }\n  function place(i, xy) { const [x, y] = xy || P(i); token.setAttribute('cx', x); token.setAttribute('cy', y); }\n  function plan() {\n    const s = document.getElementById('num').value.replace(/\\D/g, '') || '0';\n    moves = []; let st = 0;\n    [...s].forEach((d, idx) => {\n      for (let n = 0; n \u003c +d; n++) { moves.push({ t: 'b', from: st, to: (st + 1) % M, idx }); st = (st + 1) % M; }\n      moves.push({ t: 'mark', idx, st, prefix: s.slice(0, idx + 1) });\n      if (idx \u003c s.length - 1) { moves.push({ t: 'g', from: st, to: (10 * st) % M, idx }); st = (10 * st) % M; }\n    });\n    moves.push({ t: 'end', st, s });\n    k = 0; pos = 0; render(s, -1); document.getElementById('result').textContent = ''; document.getElementById('now').textContent = 'Start on YES. For each digit, walk that many black arrows, then take one green arrow to move on to the next digit.';\n    document.getElementById('why').textContent = 'Why it works: the circle you are on is the remainder so far. Black adds 1. Green multiplies by 10, which is what happens to a number when you write another digit after it. ' + (M === 7 ? 'Since 10 leaves remainder 3 when divided by 7, green sends 1 to 3, 2 to 6, 3 to 2 and so on.' : '');\n    draw();\n  }\n  function render(s, idx, doneUpTo = idx - 1) {\n    const D = document.getElementById('digits'); D.innerHTML = '';\n    [...s].forEach((d, i) => { const sp = document.createElement('span'); sp.textContent = d; if (i === idx) sp.className = 'now'; else if (i \u003c= doneUpTo) sp.className = 'done'; D.appendChild(sp); });\n  }\n  function animate(m, done) {\n    const dur = reduce ? 0 : m.t === 'g' ? 520 : 260, t0 = performance.now();\n    const a0 = -Math.PI / 2 + m.from * 2 * Math.PI / M;\n    const [x0, y0] = P(m.from), [x1, y1] = P(m.to);\n    const tick = now => {\n      const u = dur ? Math.min(1, (now - t0) / dur) : 1, e = u \u003c .5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2;\n      if (m.t === 'b') { const a = a0 + e * 2 * Math.PI / M; place(0, [R * Math.cos(a), R * Math.sin(a)]); }\n      else place(0, [x0 + (x1 - x0) * e, y0 + (y1 - y0) * e]);\n      if (u \u003c 1) requestAnimationFrame(tick); else { pos = m.to; place(pos); done(); }\n    };\n    requestAnimationFrame(tick);\n  }\n  let busy = false;\n  function step(cb) {\n    if (busy || k >= moves.length) { cb && cb(false); return; }\n    const m = moves[k++], s = document.getElementById('num').value.replace(/\\D/g, '') || '0';\n    if (m.t === 'mark') { render(s, -1, m.idx); document.getElementById('now').textContent = 'After \"' + m.prefix + '\" you are on ' + (m.st === 0 ? 'YES' : m.st) + ': ' + m.prefix + ' leaves remainder ' + m.st + ' when divided by ' + M + '.'; cb && cb(true); return; }\n    if (m.t === 'end') { const ok = m.st === 0; document.getElementById('result').textContent = ok ? m.s + ' is divisible by ' + M + '. You ended on YES.' : m.s + ' is not divisible by ' + M + ': it leaves remainder ' + m.st + '.'; cb && cb(false); return; }\n    render(s, m.idx); busy = true; animate(m, () => { busy = false; cb && cb(true); });\n  }\n  function play() { clearTimeout(timer); const go = () => step(more => { if (more) timer = setTimeout(go, reduce ? 0 : 60); }); go(); }\n  document.getElementById('play').onclick = () => { plan(); play(); };\n  document.getElementById('step').onclick = () => { if (k === 0 || k >= moves.length) plan(); step(); };\n  document.getElementById('rand').onclick = () => { document.getElementById('num').value = String(Math.floor(Math.random() * 90000) + 100); plan(); };\n  document.getElementById('num').addEventListener('input', () => { clearTimeout(timer); plan(); });\n  sel.onchange = () => { M = +sel.value; clearTimeout(timer); plan(); };\n  plan();\n})();\n\u003c/script>\n","date":1795088999082,"order":3}],"publishedAt":1795104785230}</script>
+<div id="app"></div>
+<script id="hg-app">(() => {
+'use strict';
+
+/* ================= Defaults & presets ================= */
+const PALETTES = {
+  blueprint: { name: 'Blueprint',
+    light: { bg: '#F2F5F8', panel: '#FFFFFF', fg: '#12203A', muted: '#5A6880', accent: '#2445D6', accent2: '#E8A317', line: '#D5DDE7' },
+    dark:  { bg: '#0E1626', panel: '#142036', fg: '#E6ECF5', muted: '#93A1B8', accent: '#7C95FF', accent2: '#F2C14E', line: '#26344E' } },
+  chalkboard: { name: 'Chalkboard',
+    light: { bg: '#EEF1EC', panel: '#FAFBF8', fg: '#1E2A22', muted: '#5F6B62', accent: '#1F7A5A', accent2: '#D9534F', line: '#D3DAD2' },
+    dark:  { bg: '#1C2621', panel: '#24312A', fg: '#EEF2EA', muted: '#A3B0A6', accent: '#7FD1AE', accent2: '#F28B82', line: '#34443B' } },
+  riso: { name: 'Riso print',
+    light: { bg: '#F7F4F2', panel: '#FFFFFF', fg: '#1D1A26', muted: '#6B6476', accent: '#D6307F', accent2: '#0B7FA6', line: '#E4DDE0' },
+    dark:  { bg: '#17141C', panel: '#211D28', fg: '#F1ECF3', muted: '#A79FB0', accent: '#FF6FB0', accent2: '#4FC3E8', line: '#352F3D' } },
+  sunprint: { name: 'Sunprint',
+    light: { bg: '#EAF2F7', panel: '#F7FBFD', fg: '#0B2E4F', muted: '#4D6B86', accent: '#1B5E9E', accent2: '#B8901A', line: '#CADBE8' },
+    dark:  { bg: '#0A2238', panel: '#0F2D49', fg: '#E3EEF7', muted: '#8FB0CC', accent: '#8EC5F0', accent2: '#E7C65A', line: '#1D4466' } },
+  graphite: { name: 'Graphite',
+    light: { bg: '#F4F4F1', panel: '#FFFFFF', fg: '#1A1A18', muted: '#67675F', accent: '#4338CA', accent2: '#D99A00', line: '#DEDED8' },
+    dark:  { bg: '#141413', panel: '#1E1E1C', fg: '#EDEDE8', muted: '#A2A29A', accent: '#A5A0FF', accent2: '#F5C542', line: '#33332F' } },
+};
+const TOKENS = ['bg', 'panel', 'fg', 'muted', 'accent', 'accent2', 'line'];
+const TOKEN_LABELS = { bg: 'Page', panel: 'Panels', fg: 'Text', muted: 'Quiet text', accent: 'Accent', accent2: 'Highlight', line: 'Lines' };
+const FONTS = {
+  display: ['Familjen Grotesk', 'Bricolage Grotesque', 'Space Grotesk', 'Unbounded', 'Syne', 'Instrument Serif', 'DM Serif Display', 'Fraunces', 'Archivo Black'],
+  body: ['Source Serif 4', 'Literata', 'Newsreader', 'Inter', 'IBM Plex Sans', 'Atkinson Hyperlegible', 'Work Sans'],
+  mono: ['JetBrains Mono', 'IBM Plex Mono', 'Space Mono', 'DM Mono'],
+};
+const SERIF = new Set(['Instrument Serif', 'DM Serif Display', 'Fraunces', 'Source Serif 4', 'Literata', 'Newsreader']);
+const DEFAULT_SITE = {
+  title: 'Hidden Geometry',
+  tagline: 'The invisible maths inside everyday things',
+  intro: 'I collect objects, pictures and tricks where geometry quietly does the work: a drill bit that cuts square holes, a coin with seven curved sides, a city whose bridges stumped everyone. Each one comes with something to play with.',
+  eyebrow: 'A cabinet of curiosities',
+  footer: 'Collected with curiosity. Photos, videos and ideas belong to the makers linked on each page.',
+  palette: 'blueprint', overrides: { light: {}, dark: {} }, mode: 'auto',
+  fonts: { display: 'Familjen Grotesk', body: 'Source Serif 4', mono: 'JetBrains Mono' },
+  scale: 1, radius: 10, density: 'comfortable', width: 'standard', pattern: 'grid',
+  layout: 'feature', cardStyle: 'outlined', demoFrame: 'card', sort: 'newest', motion: true,
+  show: { foundAt: true, tags: true, filters: true, sources: true, prevNext: true, intro: true },
+  labels: { foundAt: 'Found at', sources: 'Where I found it', back: 'All pieces', empty: 'Nothing here yet. New pieces are on their way.' },
+};
+const DEFAULT_APPROACHES = [
+  { id: 'toy', name: 'Hands-on toy', brief: 'A direct-manipulation sandbox: the reader drags, slides or taps and the geometry responds live. Minimal text.' },
+  { id: 'steps', name: 'Step-by-step reveal', brief: 'A guided sequence of 4 to 6 steps with Next/Back buttons. Each step adds one idea to the same diagram.' },
+  { id: 'puzzle', name: 'Puzzle first', brief: 'Open with a challenge the reader tries to solve by interacting, then reveal why it works (or why it is impossible).' },
+  { id: 'anim', name: 'Animated diagram', brief: 'A smooth looping animation with a play/pause button and a scrubber, plus one or two short captions.' },
+  { id: 'compare', name: 'Guess vs reality', brief: 'Ask the reader to guess first (a slider or a choice), then show the true answer side by side with their guess.' },
+  { id: 'build', name: 'Build it yourself', brief: 'Walk the reader through constructing the object (compass and ruler, folds, or cuts) one action at a time.' },
+];
+const DEFAULT_STUDIO = {
+  modelTier: 'complex', mode: 'auto', accent: '', compact: false, previewWidth: 'full', codeOpen: false,
+  houseStyle: 'Playful but precise. Plain words, short captions, no jargon without a picture. Aim for one clear "aha" moment. Colours and fonts come from the site tokens.',
+  approaches: DEFAULT_APPROACHES, previewIncludesReady: true,
+};
+const STATUSES = ['idea', 'drafting', 'ready', 'published'];
+
+/* ================= Helpers ================= */
+const $ = (s, r = document) => r.querySelector(s);
+const clone = o => JSON.parse(JSON.stringify(o));
+function merge(base, over) {
+  const out = clone(base);
+  if (!over || typeof over !== 'object') return out;
+  for (const k of Object.keys(over)) {
+    if (over[k] && typeof over[k] === 'object' && !Array.isArray(over[k]) && out[k] && typeof out[k] === 'object' && !Array.isArray(out[k])) out[k] = merge(out[k], over[k]);
+    else if (over[k] !== undefined) out[k] = clone(over[k]);
+  }
+  return out;
+}
+function h(tag, attrs, ...kids) {
+  const e = document.createElement(tag);
+  if (attrs) for (const k in attrs) {
+    const v = attrs[k];
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else if (k === 'value') e.value = v;
+    else if (k === 'checked') e.checked = !!v;
+    else e.setAttribute(k, v === true ? '' : v);
+  }
+  for (const c of kids.flat()) if (c != null && c !== false) e.append(c.nodeType ? c : document.createTextNode(String(c)));
+  return e;
+}
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const slug = s => (String(s || 'piece').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48) || 'piece');
+const uid = () => Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-4);
+const fmtDate = t => t ? new Date(t).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+function ago(t) { if (!t) return ''; const s = (Date.now() - t) / 1000; if (s < 60) return 'just now'; if (s < 3600) return Math.round(s / 60) + ' min ago'; if (s < 86400) return Math.round(s / 3600) + ' h ago'; return fmtDate(t); }
+function lum(hex) { const m = /^#?([0-9a-f]{6})$/i.exec(hex || ''); if (!m) return .5; const n = parseInt(m[1], 16); const c = [n >> 16, (n >> 8) & 255, n & 255].map(v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }); return .2126 * c[0] + .7152 * c[1] + .0722 * c[2]; }
+const onColor = hex => lum(hex) > .4 ? '#0E1626' : '#FFFFFF';
+function md(src) {
+  // tiny markdown: paragraphs, ### headings, **bold**, *italic*, [text](url)
+  const inline = s => esc(s)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  return String(src || '').trim().split(/\n{2,}/).map(b => b.startsWith('### ') ? '<h3>' + inline(b.slice(4)) + '</h3>' : '<p>' + inline(b).replace(/\n/g, '<br>') + '</p>').join('');
+}
+function parseSources(text) { return String(text || '').split('\n').map(l => l.trim()).filter(Boolean).map(l => { const i = l.lastIndexOf('|'); if (i < 0) return /^https?:/.test(l) ? { label: l.replace(/^https?:\/\/(www\.)?/, '').split('/')[0], url: l } : { label: l, url: '' }; return { label: l.slice(0, i).trim(), url: l.slice(i + 1).trim() }; }); }
+const sourcesText = arr => (arr || []).map(s => s.url ? (s.label ? s.label + ' | ' + s.url : s.url) : s.label).join('\n');
+let toastTimer;
+function toast(msg) { let t = $('.toast'); if (!t) { t = h('div', { class: 'toast', role: 'status' }); document.body.append(t); } t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 2600); }
+const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+const sess = { get(k) { try { return sessionStorage.getItem(k); } catch { return null; } }, set(k, v) { try { sessionStorage.setItem(k, v); } catch {} }, del(k) { try { sessionStorage.removeItem(k); } catch {} } };
+
+/* ================= Published data ================= */
+let PUB = { site: {}, pieces: [], publishedAt: 0 };
+try { PUB = JSON.parse($('#hg-published').textContent); } catch {}
+const S = {
+  view: 'public', site: merge(DEFAULT_SITE, PUB.site), studio: clone(DEFAULT_STUDIO),
+  db: null, sample: null, art: null, user: null,
+  drafts: [], current: null, variants: [], curVariant: null, draftsLoaded: false,
+  siteSavedAt: 0, unsubs: [], varUnsub: null, generating: {}, tab: 'pieces', filter: 'all', search: '',
+};
+
+/* ================= Theme ================= */
+function isDark(pref) {
+  if (pref === 'dark') return true; if (pref === 'light') return false;
+  const t = document.documentElement.getAttribute('data-theme'); if (t) return t === 'dark';
+  return matchMedia('(prefers-color-scheme: dark)').matches;
+}
+function paletteOf(site, dark, accentOverride) {
+  const p = PALETTES[site.palette] || PALETTES.blueprint, m = dark ? 'dark' : 'light';
+  const c = Object.assign({}, p[m], (site.overrides && site.overrides[m]) || {});
+  if (accentOverride) c.accent = accentOverride;
+  c.onAccent = onColor(c.accent);
+  return c;
+}
+function fontStack(name, role) { return '"' + name + '", ' + (role === 'mono' ? 'ui-monospace, Menlo, monospace' : SERIF.has(name) ? 'Georgia, "Times New Roman", serif' : '"Helvetica Neue", Arial, sans-serif'); }
+function fontHref(f) {
+  const fam = n => 'family=' + n.replace(/ /g, '+') + (n === 'Instrument Serif' || n === 'DM Serif Display' || n === 'Archivo Black' ? '' : ':wght@400;500;600;700');
+  const set = [...new Set([f.display, f.body, f.mono])];
+  return 'https://fonts.googleapis.com/css2?' + set.map(fam).join('&') + '&display=swap';
+}
+function themeVars(site, dark, accentOverride) {
+  const c = paletteOf(site, dark, accentOverride), f = site.fonts;
+  return {
+    '--bg': c.bg, '--panel': c.panel, '--fg': c.fg, '--muted': c.muted, '--accent': c.accent, '--accent2': c.accent2, '--line': c.line, '--on-accent': c.onAccent,
+    '--danger': dark ? '#FF7B6E' : '#C2362B', '--ok': dark ? '#5BD394' : '#1F8A55',
+    '--font-display': fontStack(f.display, 'display'), '--font-body': fontStack(f.body, 'body'), '--font-ui': fontStack(f.display === 'Instrument Serif' || f.display === 'DM Serif Display' || f.display === 'Fraunces' ? f.body : f.display, 'ui'), '--font-mono': fontStack(f.mono, 'mono'),
+    '--radius': site.radius + 'px', '--scale': site.scale,
+  };
+}
+function applyTheme() {
+  const inStudio = S.view === 'studio';
+  const site = S.site, pref = inStudio && S.studio.mode !== 'auto' ? S.studio.mode : site.mode;
+  const dark = isDark(pref), root = document.documentElement;
+  const vars = themeVars(site, dark, inStudio ? S.studio.accent : '');
+  for (const k in vars) root.style.setProperty(k, vars[k]);
+  root.style.colorScheme = dark ? 'dark' : 'light';
+  let link = $('#hg-fonts'); if (!link) { link = h('link', { id: 'hg-fonts', rel: 'stylesheet' }); document.body.prepend(link); }
+  const href = fontHref(site.fonts); if (link.getAttribute('href') !== href) link.setAttribute('href', href);
+  const b = document.body;
+  b.className = [
+    inStudio ? 'studio' : 'pat-' + site.pattern, 'dens-' + site.density, 'w-' + site.width, 'card-' + site.cardStyle, 'frame-' + site.demoFrame,
+    site.motion ? '' : 'nomotion', inStudio && S.studio.compact ? 'compact' : '',
+  ].filter(Boolean).join(' ');
+  S.dark = dark;
+}
+let lastDark = null;
+function themeChanged() { const was = lastDark; applyTheme(); lastDark = S.dark; if (was !== null && was !== S.dark) refreshFrames(); }
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', themeChanged);
+new MutationObserver(themeChanged).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+/* ================= Demo frames ================= */
+const KIT_CSS = `*{box-sizing:border-box}html,body{margin:0;background:var(--panel);color:var(--fg);font:16px/1.5 var(--font-body)}
+button{font:600 14px/1 var(--font-ui);padding:8px 12px;border-radius:calc(var(--radius)*.7);border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+button:hover{border-color:var(--fg)}button.hg-primary,button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
+input[type=range],input[type=checkbox],input[type=radio]{accent-color:var(--accent)}
+.hg-seg{display:flex;flex-wrap:wrap;gap:6px}.hg-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.hg-caption{font:13px/1.4 var(--font-mono);color:var(--muted)}h1,h2,h3,h4{font-family:var(--font-display)}
+canvas,svg,img{max-width:100%}:focus-visible{outline:2px solid var(--accent);outline-offset:2px}`;
+function demoDoc(html, site, dark) {
+  const v = themeVars(site, dark, '');
+  const root = Object.entries(v).map(([k, x]) => k + ':' + x).join(';');
+  return '<!doctype html><html data-theme="' + (dark ? 'dark' : 'light') + '"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+    + '<link rel="stylesheet" href="' + esc(fontHref(site.fonts)) + '">'
+    + '<style>:root{' + root + ';color-scheme:' + (dark ? 'dark' : 'light') + '}' + KIT_CSS + '</style></head><body>'
+    + html
+    + '<script>(function(){var p=function(){parent.postMessage({hg:"h",h:Math.ceil(document.documentElement.scrollHeight)},"*")};try{new ResizeObserver(p).observe(document.body)}catch(e){}addEventListener("load",p);setTimeout(p,60);setTimeout(p,600);p()})()<\/script></body></html>';
+}
+const frames = new Set();
+function demoFrame(html, site, title) {
+  const f = h('iframe', { sandbox: 'allow-scripts', title: title || 'Interactive demo', loading: 'lazy' });
+  f._html = html; f._site = site;
+  f.srcdoc = demoDoc(html, site, S.dark);
+  frames.add(f);
+  return f;
+}
+function refreshFrames() { for (const f of frames) { if (!f.isConnected) { frames.delete(f); continue; } f.srcdoc = demoDoc(f._html, f._site, S.dark); } }
+addEventListener('message', e => {
+  const d = e.data; if (!d || d.hg !== 'h') return;
+  for (const f of frames) if (f.contentWindow === e.source) { f.style.height = Math.max(200, Math.min(4000, d.h)) + 'px'; }
+});
+
+/* ================= Public site ================= */
+function sortPieces(list, how) {
+  const a = list.slice();
+  if (how === 'title') a.sort((x, y) => x.title.localeCompare(y.title));
+  else if (how === 'manual') a.sort((x, y) => (x.order ?? 999) - (y.order ?? 999));
+  else if (how === 'oldest') a.sort((x, y) => (x.date || 0) - (y.date || 0));
+  else a.sort((x, y) => (y.date || 0) - (x.date || 0));
+  return a;
+}
+function renderSite(container, data, nav) {
+  // nav: {current: id|null, go(id|null)}
+  const site = data.site, pieces = sortPieces(data.pieces || [], site.sort);
+  container.innerHTML = '';
+  const shell = h('div', { class: 'shell' }), wrap = h('div', { class: 'wrap' }); shell.append(wrap); container.append(shell);
+  const cur = nav.current && pieces.find(p => p.id === nav.current);
+  if (cur) {
+    const i = pieces.indexOf(cur), prev = pieces[i - 1], next = pieces[i + 1];
+    const art = h('article', { class: 'piece' },
+      h('button', { class: 'back', onclick: () => nav.go(null) }, '← ' + site.labels.back),
+      h('header', { class: 'piece-head' },
+        site.show.foundAt && cur.foundAt ? h('div', { class: 'eyebrow' }, site.labels.foundAt + ': ' + cur.foundAt) : null,
+        h('h1', { class: 'piece-title' }, cur.title),
+        cur.hook ? h('p', { class: 'piece-hook' }, cur.hook) : null,
+        site.show.tags && cur.tags?.length ? h('div', { class: 'tags' }, cur.tags.map(t => h('span', { class: 'tag' }, t))) : null),
+      cur.demo ? h('div', { class: 'demo-frame' }, demoFrame(cur.demo, site, cur.title)) : null);
+    if (cur.story) { const st = h('div', { class: 'story' }); st.innerHTML = md(cur.story); art.append(st); }
+    if (site.show.sources && cur.sources?.length) art.append(h('section', { class: 'sources' }, h('div', { class: 'eyebrow' }, site.labels.sources), h('ul', null, cur.sources.map(s => h('li', null, s.url ? h('a', { href: s.url, target: '_blank', rel: 'noopener' }, s.label || s.url) : s.label)))));
+    if (site.show.prevNext && (prev || next)) art.append(h('nav', { class: 'pn', 'aria-label': 'More pieces' },
+      prev ? h('button', { onclick: () => nav.go(prev.id) }, '← ' + prev.title) : h('span'),
+      next ? h('button', { onclick: () => nav.go(next.id) }, next.title + ' →') : h('span')));
+    wrap.append(art);
+  } else {
+    const head = h('header', { class: 'site-head' },
+      site.eyebrow ? h('div', { class: 'eyebrow' }, site.eyebrow) : null,
+      h('h1', { class: 'site-title' }, site.title),
+      site.tagline ? h('p', { class: 'site-tag' }, site.tagline) : null,
+      site.show.intro && site.intro ? h('p', { class: 'site-intro' }, site.intro) : null);
+    wrap.append(head);
+    const tags = [...new Set(pieces.flatMap(p => p.tags || []))].sort();
+    let active = nav.tag || null;
+    const cards = h('div', { class: 'cards layout-' + site.layout });
+    const fill = () => {
+      cards.innerHTML = '';
+      const list = active ? pieces.filter(p => (p.tags || []).includes(active)) : pieces;
+      if (!list.length) { cards.append(h('div', { class: 'empty' }, site.labels.empty)); return; }
+      list.forEach(p => cards.append(h('a', { class: 'card', href: '#' + p.id, onclick: e => { e.preventDefault(); nav.go(p.id); } },
+        site.show.foundAt && p.foundAt ? h('div', { class: 'card-meta' }, h('b', null, site.labels.foundAt), ' · ' + p.foundAt) : null,
+        h('h2', { class: 'card-title' }, p.title),
+        p.hook ? h('p', { class: 'card-hook' }, p.hook) : null,
+        site.show.tags && p.tags?.length ? h('div', { class: 'tags' }, p.tags.map(t => h('span', { class: 'tag' }, t))) : null)));
+    };
+    if (site.show.filters && tags.length > 1) {
+      const bar = h('div', { class: 'filters', role: 'group', 'aria-label': 'Filter by topic' });
+      const mk = (label, val) => h('button', { class: 'chip', 'aria-pressed': String(active === val), onclick: () => { active = val; nav.tag = val; [...bar.children].forEach(c => c.setAttribute('aria-pressed', String(c._v === active))); fill(); } }, label);
+      const all = mk('Everything', null); all._v = null; bar.append(all);
+      tags.forEach(t => { const b = mk(t, t); b._v = t; bar.append(b); });
+      wrap.append(bar);
+    }
+    fill(); wrap.append(cards);
+  }
+  if (site.footer) wrap.append(h('footer', { class: 'site-foot' }, site.footer));
+}
+function publicNav() {
+  return { get current() { const id = location.hash.slice(1); return id || null; }, go(id) { if (id) location.hash = id; else history.replaceState(null, '', location.pathname + location.search), renderPublic(); scrollTo(0, 0); } };
+}
+function renderPublic() {
+  S.view = 'public'; applyTheme(); lastDark = S.dark;
+  const app = $('#app');
+  renderSite(app, { site: S.site, pieces: PUB.pieces }, publicNav());
+  if (S.isEditor) app.append(h('button', { class: 'btn primary owner-pill', onclick: openStudio }, '✎ Open studio'));
+}
+addEventListener('hashchange', () => { if (S.view === 'public') { renderPublic(); scrollTo(0, 0); } });
+
+/* ================= Boot ================= */
+async function boot() {
+  applyTheme(); lastDark = S.dark;
+  renderPublic();
+  const cl = window.claude; if (!cl || !cl.use) return;
+  const user = await cl.use('user').catch(() => null);
+  const canEdit = user ? await user.canEdit().catch(() => false) : false;
+  if (!canEdit) return;
+  S.isEditor = true; S.user = user;
+  [S.db, S.sample, S.art] = await Promise.all([cl.use('db'), cl.use('sample'), cl.use('artifact')].map(p => p.catch(() => null)));
+  if (sess.get('hg-view') === 'studio' || store.get('hg-view') === 'studio') openStudio(); else renderPublic();
+}
+
+/* ================= Studio: data ================= */
+function startData() {
+  if (!S.db || S.unsubs.length) return;
+  const timer = setTimeout(() => { if (!S.draftsLoaded) { S.loadNote = 'Your drafts are taking a while to load. They may be out of date.'; renderStudio(); } }, 10000);
+  S.unsubs.push(S.db.collection('drafts').onSnapshot(snap => {
+    if (!snap.metadata?.fromCache) clearTimeout(timer);
+    S.drafts = snap.docs.map(d => Object.assign({ id: d.id }, d.data()));
+    S.draftsLoaded = true; S.loadNote = '';
+    if (S.current && !S.drafts.find(d => d.id === S.current)) S.current = null;
+    if (!S.current) { const last = sess.get('hg-current'); if (last && S.drafts.find(d => d.id === last)) selectDraft(last, true); }
+    refreshList(); refreshPubBar(); refreshTop();
+  }, err => { clearTimeout(timer); S.loadNote = 'Could not load drafts (' + err.code + ').'; renderStudio(); }));
+  S.unsubs.push(S.db.doc('config/site').onSnapshot(snap => {
+    const d = snap.data(); if (d && d.site && !S.siteDirtyLocal) { S.site = merge(DEFAULT_SITE, d.site); S.siteSavedAt = d.updatedAt || 0; applyTheme(); if (S.tab === 'site') renderTab(); }
+    refreshTop();
+  }));
+  S.unsubs.push(S.db.doc('config/studio').onSnapshot(snap => {
+    const d = snap.data(); if (d && d.studio && !S.studioDirtyLocal) { S.studio = merge(DEFAULT_STUDIO, d.studio); if (d.studio.approaches) S.studio.approaches = d.studio.approaches; applyTheme(); if (S.tab === 'studio-settings') renderTab(); }
+  }));
+}
+const saveTimers = {};
+function debounce(key, fn, ms = 700) { clearTimeout(saveTimers[key]); saveTimers[key] = setTimeout(fn, ms); }
+function saveDraft(id, patch, ms) {
+  const d = S.drafts.find(x => x.id === id); if (d) Object.assign(d, patch);
+  debounce('d-' + id + Object.keys(patch).join(), () => S.db.doc('drafts/' + id).update(Object.assign({}, patch, { updatedAt: Date.now() })).catch(e => toast('Not saved: ' + (e.code || 'error'))), ms ?? 700);
+}
+function saveSite() { S.siteDirtyLocal = true; debounce('site', async () => { try { const t = Date.now(); await S.db.doc('config/site').set({ site: S.site, updatedAt: t }); S.siteSavedAt = t; } catch (e) { toast('Settings not saved: ' + (e.code || 'error')); } S.siteDirtyLocal = false; refreshTop(); }, 600); }
+function saveStudio() { S.studioDirtyLocal = true; debounce('studio', async () => { try { await S.db.doc('config/studio').set({ studio: S.studio, updatedAt: Date.now() }); } catch (e) { toast('Preferences not saved: ' + (e.code || 'error')); } S.studioDirtyLocal = false; }, 600); }
+
+function selectDraft(id, quiet) {
+  S.current = id; sess.set('hg-current', id || '');
+  if (S.varUnsub) { S.varUnsub(); S.varUnsub = null; }
+  S.variants = []; S.curVariant = null;
+  if (id) S.varUnsub = S.db.collection('drafts/' + id + '/variants').onSnapshot(snap => {
+    S.variants = snap.docs.map(d => Object.assign({ id: d.id }, d.data())).sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+    const d = S.drafts.find(x => x.id === S.current);
+    if (!S.curVariant || !S.variants.find(v => v.id === S.curVariant)) S.curVariant = (d && d.chosen && S.variants.find(v => v.id === d.chosen)) ? d.chosen : (S.variants[S.variants.length - 1] || {}).id || null;
+    refreshVariants();
+  }, () => {});
+  if (!quiet || S.tab === 'pieces') renderTab();
+}
+async function newDraft() {
+  const id = uid();
+  const doc = { title: 'Untitled piece', foundAt: '', hook: '', notes: '', story: '', sources: [], tags: [], status: 'idea', chosen: null, order: S.drafts.length, createdAt: Date.now(), updatedAt: Date.now() };
+  try { await S.db.doc('drafts/' + id).set(doc); S.drafts.push(Object.assign({ id }, doc)); S.tab = 'pieces'; selectDraft(id); setTimeout(() => $('#f-title')?.select(), 50); } catch (e) { toast('Could not create: ' + (e.code || 'error')); }
+}
+
+/* ================= Studio: publishing ================= */
+async function gatherPieces(statuses) {
+  const ds = S.drafts.filter(d => statuses.includes(d.status) && d.chosen);
+  const out = [];
+  for (const d of ds) {
+    let html = '';
+    try { const v = await S.db.doc('drafts/' + d.id + '/variants/' + d.chosen).get(); html = (v.data() || {}).html || ''; } catch {}
+    if (!html) continue;
+    out.push({ id: d.slug || slug(d.title) + '-' + d.id.slice(0, 4), title: d.title, foundAt: d.foundAt || '', hook: d.hook || '', story: d.story || '', tags: d.tags || [], sources: d.sources || [], demo: html, date: d.publishedAt || d.createdAt || Date.now(), order: d.order ?? 999 });
+  }
+  return out;
+}
+function pageSource(data) {
+  const css = $('#hg-css').textContent, app = $('#hg-app').textContent;
+  const json = JSON.stringify(data).replace(/</g, '\\u003c');
+  let reset = '';
+  for (const st of document.head.querySelectorAll('style')) if (/safe-area-inset/.test(st.textContent)) { reset = st.textContent; break; }
+  if (!reset) reset = ':root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}';
+  return '<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>' + reset + '</style></head><body>'
+    + '<title>' + esc(data.site.title || 'Hidden Geometry') + '</title>\n\n'
+    + '<style id="hg-css">' + css + '</style>\n'
+    + '<script type="application/json" id="hg-published">' + json + '<\/script>\n'
+    + '<div id="app"></div>\n'
+    + '<script id="hg-app">' + app + '<\/script>\n</body></html>';
+}
+let publishing = false;
+async function publishSite(msg) {
+  if (publishing) return; if (!S.art) { toast('Publishing is not available in this view.'); return; }
+  publishing = true; refreshPubBar(msg || 'Publishing…');
+  try {
+    const pieces = await gatherPieces(['published']);
+    const data = { site: S.site, pieces, publishedAt: Date.now() };
+    sess.set('hg-view', 'studio');
+    await S.art.publish(pageSource(data));
+    toast('Published. Reloading…');
+  } catch (e) {
+    publishing = false;
+    if (e && e.code === 'conflict') { toast('A newer version was published elsewhere. Reloading to it.'); return; }
+    if (e && (e.code === 'not_writer' || e.code === 'not_granted')) { toast('This view cannot publish.'); refreshPubBar(); return; }
+    toast('Publish failed: ' + ((e && e.code) || 'error')); refreshPubBar();
+  }
+}
+async function setStatusAndPublish(id, status) {
+  const d = S.drafts.find(x => x.id === id); if (!d) return;
+  const patch = { status, updatedAt: Date.now() }; if (status === 'published' && !d.publishedAt) patch.publishedAt = Date.now();
+  Object.assign(d, patch);
+  await S.db.doc('drafts/' + id).update(patch);
+  await publishSite(status === 'published' ? 'Publishing ' + d.title + '…' : 'Taking ' + d.title + ' off the site…');
+}
+function siteDirty() {
+  const at = PUB.publishedAt || 0;
+  if (S.siteSavedAt > at + 1000) return 'Site settings changed since the last publish.';
+  const live = new Set((PUB.pieces || []).map(p => p.title));
+  const pubs = S.drafts.filter(d => d.status === 'published');
+  if (pubs.some(d => (d.updatedAt || 0) > at + 1000)) return 'Published pieces have edits that are not live yet.';
+  if (pubs.length !== (PUB.pieces || []).length || pubs.some(d => !live.has(d.title))) return 'The live site has a different set of pieces.';
+  return '';
+}
+
+/* ================= Studio: Claude ================= */
+function genPrompt(d, appr, extra, base) {
+  const site = S.site;
+  const rules = [
+    'You design ONE self-contained interactive explainer for a public website called "' + site.title + '" (' + site.tagline + '). Each page shows a real-world object or trick and reveals the maths or geometry hidden inside it.',
+    'OUTPUT: only one ```html code block holding an HTML FRAGMENT (no <html>, <head> or <body> tags) with its own <style> and <script> inline. Nothing before or after the block.',
+    'It is injected into a page that already defines CSS variables: --bg, --panel (the frame background), --fg, --muted, --accent, --accent2 (highlight), --line, --on-accent (text on accent), --radius, and fonts --font-display, --font-body, --font-ui, --font-mono. Use ONLY these for colours and fonts. On canvas, read them with getComputedStyle(document.documentElement).getPropertyValue("--fg").trim(); they are 6-digit hex. Ready-made helpers: buttons are already styled (aria-pressed="true" or class hg-primary shows the accent), .hg-seg (button group), .hg-row (flex row), .hg-caption (small mono caption).',
+    'Hard limits: no external files, images, fonts, libraries or network calls; no iframes; no alert/confirm/prompt; no localStorage. Draw with SVG or canvas from real maths so it is correct, not approximate decoration. Wrap your code in an IIFE and scope CSS under one wrapper class.',
+    'Layout: must work from 330px to 900px wide, no horizontal scroll, padding 16px, canvases scale with width (CSS width:100%, height:auto). Give it at least one thing the reader directly manipulates. Respect prefers-reduced-motion. Keep visible text short and in plain English; captions should update as the reader interacts so they always explain what is on screen. Keep it under about 22 KB.',
+    'House style: ' + S.studio.houseStyle,
+  ].join('\n');
+  const about = [
+    'THE PIECE',
+    'Title: ' + (d.title || ''),
+    d.foundAt ? 'Where I found it: ' + d.foundAt : '',
+    d.hook ? 'Hook: ' + d.hook : '',
+    d.notes ? 'My notes:\n' + d.notes : '',
+    d.story ? 'Story text already on the page (do not repeat it at length):\n' + d.story : '',
+    (d.sources || []).length ? 'Sources: ' + d.sources.map(s => s.label + (s.url ? ' ' + s.url : '')).join('; ') : '',
+  ].filter(Boolean).join('\n');
+  if (base) return rules + '\n\n' + about + '\n\nHERE IS THE CURRENT VERSION:\n```html\n' + base + '\n```\n\nCHANGE REQUEST: ' + extra + '\n\nReturn the complete revised fragment.';
+  return rules + '\n\n' + about + '\n\nAPPROACH: ' + appr.name + ' — ' + appr.brief + (extra ? '\n\nExtra direction from me: ' + extra : '');
+}
+function extractHtml(text) {
+  const m = /```(?:html)?\s*\n([\s\S]*?)```/i.exec(text);
+  if (m) return m[1].trim();
+  const i = text.indexOf('<'); return i >= 0 ? text.slice(i).trim() : '';
+}
+async function generate(approachIds, extra) {
+  const d = S.drafts.find(x => x.id === S.current); if (!d || !S.sample) return;
+  const list = S.studio.approaches.filter(a => approachIds.includes(a.id));
+  if (!list.length) { toast('Pick at least one approach.'); return; }
+  if (d.status === 'idea') saveDraft(d.id, { status: 'drafting' }, 0);
+  await Promise.allSettled(list.map(a => runSample(d, genPrompt(d, a, extra), { approach: a.name, instructions: extra || '' })));
+}
+async function refine(base, request) {
+  const d = S.drafts.find(x => x.id === S.current); if (!d || !S.sample || !request.trim()) return;
+  await runSample(d, genPrompt(d, null, request, base.html), { approach: base.approach.replace(/ · refined.*$/, '') + ' · refined', instructions: request, parent: base.id });
+}
+async function runSample(d, prompt, meta) {
+  const key = uid(); const ctl = new AbortController();
+  S.generating[key] = { draft: d.id, label: meta.approach, text: '', ctl };
+  S.curVariant = 'gen:' + key; refreshVariants();
+  try {
+    const res = await S.sample(prompt, { modelTier: S.studio.modelTier, cache: false, signal: ctl.signal, onText: ({ text }) => { const g = S.generating[key]; if (g) { g.text = text; updateStream(key); } } });
+    const html = extractHtml(res.text);
+    if (!html) throw { code: 'no_html', message: 'Claude did not return any HTML.' };
+    const ref = await S.db.collection('drafts/' + d.id + '/variants').add(Object.assign({}, meta, { html, createdAt: Date.now(), tier: res.modelTierApplied || S.studio.modelTier }));
+    delete S.generating[key];
+    if (S.current === d.id) S.curVariant = ref.id;
+    refreshVariants();
+  } catch (e) {
+    const g = S.generating[key];
+    if (g) { g.error = e.code === 'cancelled' ? 'Stopped.' : e.code === 'not_granted' ? 'Claude is turned off for this page. Turn it on from the artifact\'s permissions.' : e.code === 'rate_limited' ? 'Claude is busy or you hit a usage limit. Try again in a bit.' : (e.message || e.code || 'Something went wrong.'); g.done = true; }
+    refreshVariants();
+  }
+}
+async function draftStory() {
+  const d = S.drafts.find(x => x.id === S.current); if (!d || !S.sample) return;
+  const btn = $('#b-story'); if (btn) { btn.disabled = true; btn.textContent = 'Writing…'; }
+  try {
+    const out = await S.sample.json('You write short, warm, precise copy for "' + S.site.title + '", a site about hidden geometry in everyday things. House style: ' + S.studio.houseStyle + '\nUsing the notes below, reply with ONLY a JSON object {"hook": string (one sentence, max 22 words, makes the reader curious), "story": string (2 to 4 short paragraphs separated by blank lines, plain English, explains the maths behind the object, mentions where it was found, may use **bold**)}.\n\nTitle: ' + d.title + '\nFound at: ' + (d.foundAt || '') + '\nNotes: ' + (d.notes || '') + '\nSources: ' + (d.sources || []).map(s => s.label + ' ' + s.url).join('; '), { modelTier: 'default' });
+    if (out && typeof out === 'object') { const patch = {}; if (out.hook) patch.hook = String(out.hook); if (out.story) patch.story = String(out.story); saveDraft(d.id, patch, 0); renderTab(); toast('Draft text added. Edit freely.'); }
+  } catch (e) { toast('Could not draft text: ' + (e.code || 'error')); }
+  if (btn) { btn.disabled = false; btn.textContent = 'Draft hook + story with Claude'; }
+}
+
+/* ================= Studio: UI ================= */
+function openStudio() {
+  if (!S.db) { toast('Studio needs you to be signed in.'); return; }
+  S.view = 'studio'; sess.set('hg-view', 'studio'); store.set('hg-view', 'studio');
+  frames.clear(); applyTheme(); lastDark = S.dark; startData(); renderStudio();
+}
+function closeStudio() { sess.set('hg-view', 'public'); store.set('hg-view', 'public'); frames.clear(); renderPublic(); scrollTo(0, 0); }
+function renderStudio() {
+  const app = $('#app'); app.innerHTML = '';
+  const tabs = [['pieces', 'Pieces'], ['site', 'Site look'], ['studio-settings', 'Studio settings'], ['preview', 'Preview site']];
+  app.append(h('div', { class: 'st-bar' },
+    h('div', { class: 'st-brand' }, S.site.title, h('small', null, 'Studio')),
+    h('div', { class: 'st-tabs', role: 'tablist' }, tabs.map(([id, label]) => h('button', { role: 'tab', 'aria-selected': String(S.tab === id), onclick: () => { S.tab = id; renderStudio(); } }, label))),
+    h('div', { class: 'st-spacer' }),
+    h('div', { class: 'st-pubstate', id: 'pubstate' }),
+    h('button', { class: 'btn small primary', id: 'b-pubsite', onclick: () => publishSite() }, 'Publish site'),
+    h('button', { class: 'btn small ghost', onclick: closeStudio }, 'View live site')));
+  app.append(h('div', { class: 'shell' }, h('div', { class: 'wrap st-main', id: 'st-main' })));
+  renderTab(); refreshTop();
+}
+function refreshTop() {
+  const el = $('#pubstate'); if (!el) return;
+  const dirty = S.draftsLoaded ? siteDirty() : '';
+  el.className = 'st-pubstate' + (dirty ? ' dirty' : '');
+  el.replaceChildren(h('span', { class: 'dot' }), dirty ? 'Unpublished changes' : PUB.publishedAt ? 'Live · ' + ago(PUB.publishedAt) : 'Not published yet');
+  el.title = dirty || '';
+}
+function renderTab() {
+  const main = $('#st-main'); if (!main) return; main.innerHTML = '';
+  if (S.loadNote) main.append(h('p', { class: 'note err' }, S.loadNote));
+  if (S.tab === 'pieces') renderPieces(main);
+  else if (S.tab === 'site') renderSiteSettings(main);
+  else if (S.tab === 'studio-settings') renderStudioSettings(main);
+  else renderPreview(main);
+}
+
+/* ---- Pieces tab ---- */
+function renderPieces(main) {
+  const grid = h('div', { class: 'st-pieces' });
+  const aside = h('aside', { class: 'st-list', id: 'st-list', 'aria-label': 'Pieces' });
+  const ed = h('section', { class: 'st-editor', id: 'st-editor' });
+  grid.append(aside, ed); main.append(grid);
+  refreshList(); renderEditor();
+}
+function refreshList() {
+  const aside = $('#st-list'); if (!aside) return;
+  const counts = Object.fromEntries(STATUSES.map(s => [s, S.drafts.filter(d => d.status === s).length]));
+  const head = h('div', { class: 'st-list-head' },
+    h('input', { class: 'st-search', id: 'st-search', type: 'search', placeholder: 'Search pieces', value: S.search, 'aria-label': 'Search pieces', oninput: e => { S.search = e.target.value; fillItems(); } }),
+    h('button', { class: 'btn small primary', onclick: newDraft }, '+ New'));
+  const filt = h('div', { class: 'st-filter' }, [['all', 'All ' + S.drafts.length], ...STATUSES.map(s => [s, s[0].toUpperCase() + s.slice(1) + ' ' + counts[s]])].map(([v, l]) => h('button', { class: 'chip', 'aria-pressed': String(S.filter === v), onclick: () => { S.filter = v; refreshList(); } }, l)));
+  const items = h('div', { style: 'display:grid;gap:6px', id: 'st-items' });
+  const focused = document.activeElement && document.activeElement.id === 'st-search';
+  aside.replaceChildren(head, filt, items); fillItems();
+  if (focused) { const s = $('#st-search'); s.focus(); s.setSelectionRange(s.value.length, s.value.length); }
+  function fillItems() {
+    const q = S.search.toLowerCase();
+    const list = S.drafts.filter(d => (S.filter === 'all' || d.status === S.filter) && (!q || (d.title + ' ' + (d.foundAt || '') + ' ' + (d.tags || []).join(' ') + ' ' + (d.notes || '')).toLowerCase().includes(q)))
+      .sort((a, b) => STATUSES.indexOf(b.status) - STATUSES.indexOf(a.status) || (b.updatedAt || 0) - (a.updatedAt || 0));
+    items.replaceChildren(...(list.length ? list.map(d => h('button', { class: 'st-item', 'aria-current': String(d.id === S.current), onclick: () => selectDraft(d.id) },
+      h('span', { class: 'st-item-title' }, d.title || 'Untitled'),
+      h('span', { class: 'st-item-meta' }, h('span', { class: 'status status-' + d.status }, d.status), d.foundAt ? d.foundAt.slice(0, 28) : ''))) : [h('p', { class: 'note' }, S.draftsLoaded ? (S.drafts.length ? 'No pieces match.' : 'No pieces yet. Press + New to start one.') : 'Loading your drafts…')]));
+  }
+}
+function field(label, input, opts = {}) { return h(/^(INPUT|SELECT|TEXTAREA)$/.test(input.tagName) ? 'label' : 'div', { class: 'field' + (opts.full ? ' full' : '') }, h('span', null, label), input, opts.hint ? h('small', null, opts.hint) : null); }
+function renderEditor() {
+  const ed = $('#st-editor'); if (!ed) return; ed.innerHTML = '';
+  const d = S.drafts.find(x => x.id === S.current);
+  if (!d) {
+    ed.append(h('div', { class: 'sec' }, h('div', { class: 'sec-head' }, h('h2', null, 'Pick a piece to work on')),
+      h('p', { class: 'note' }, 'Each piece moves from idea to drafting to ready to published. Start with notes and sources, ask Claude for a few different ways to show it, keep the version you like, then publish.'),
+      h('div', { class: 'row' }, h('button', { class: 'btn primary', onclick: newDraft }, '+ New piece'))));
+    return;
+  }
+  const save = (k, parse) => e => { const v = parse ? parse(e.target.value) : e.target.value; saveDraft(d.id, { [k]: v }); if (k === 'title' || k === 'foundAt') refreshList(); };
+  // Details
+  ed.append(h('div', { class: 'sec' },
+    h('div', { class: 'sec-head' }, h('h2', null, 'Details'), h('p', null, 'Saved as you type')),
+    h('div', { class: 'fields' },
+      field('Title', h('input', { type: 'text', id: 'f-title', value: d.title, oninput: save('title') })),
+      field('Found at', h('input', { type: 'text', id: 'f-found', value: d.foundAt || '', placeholder: 'a machinist\'s video, a coin in my pocket…', oninput: save('foundAt') })),
+      field('Status', h('select', { id: 'f-status', onchange: e => { if (e.target.value === 'published') { setStatusAndPublish(d.id, 'published'); } else if (d.status === 'published') { setStatusAndPublish(d.id, e.target.value); } else { saveDraft(d.id, { status: e.target.value }, 0); refreshList(); } } }, STATUSES.map(s => h('option', { value: s, selected: s === d.status ? 'selected' : null }, s[0].toUpperCase() + s.slice(1)))), { hint: 'Choosing Published puts it live straight away.' }),
+      field('Tags', h('input', { type: 'text', id: 'f-tags', value: (d.tags || []).join(', '), placeholder: 'curves, puzzles, nature', oninput: save('tags', v => v.split(',').map(s => s.trim()).filter(Boolean)) }), { hint: 'Comma separated. Used for the filter chips.' }),
+      field('Notes for Claude and me', h('textarea', { id: 'f-notes', rows: 4, value: d.notes || '', placeholder: 'What is it, why is it surprising, what should the reader feel?', oninput: save('notes') }), { full: true }),
+      field('Sources', h('textarea', { id: 'f-sources', rows: 3, value: sourcesText(d.sources), placeholder: 'Label | https://link', oninput: save('sources', parseSources) }), { full: true, hint: 'One per line: label | url' }))));
+
+  // Explore
+  const sel = new Set(JSON.parse(sess.get('hg-appr') || '["toy","puzzle"]'));
+  const appr = h('div', { class: 'approaches', role: 'group', 'aria-label': 'Approaches' }, S.studio.approaches.map(a => h('button', { class: 'appr', 'aria-pressed': String(sel.has(a.id)), onclick: e => { sel.has(a.id) ? sel.delete(a.id) : sel.add(a.id); e.currentTarget.setAttribute('aria-pressed', String(sel.has(a.id))); sess.set('hg-appr', JSON.stringify([...sel])); } }, h('b', null, a.name), h('small', null, a.brief))));
+  const extra = h('textarea', { id: 'f-extra', rows: 2, placeholder: 'Optional: "use the 50p coin", "start with the drill video", "make it work for 10-year-olds"' });
+  const canAsk = !!S.sample;
+  ed.append(h('div', { class: 'sec' },
+    h('div', { class: 'sec-head' }, h('h2', null, 'Explore ways to show it'), h('p', null, 'Each approach you pick becomes a separate version')),
+    appr, field('Extra direction', extra, { full: true }),
+    h('div', { class: 'row' }, h('button', { class: 'btn primary', id: 'b-gen', disabled: !canAsk || null, onclick: () => generate([...sel], extra.value.trim()) }, 'Ask Claude for ' + 'versions'),
+      h('button', { class: 'btn', onclick: () => newBlankVariant(d) }, 'Start a blank version'),
+      !canAsk ? h('span', { class: 'note' }, 'Claude is not available in this view.') : h('span', { class: 'hint' }, 'Model: ' + S.studio.modelTier + ' · change in Studio settings')),
+    h('div', { id: 'variants', style: 'display:grid;gap:12px' })));
+  refreshVariants();
+
+  // Story
+  ed.append(h('div', { class: 'sec' },
+    h('div', { class: 'sec-head' }, h('h2', null, 'Words'), h('button', { class: 'btn small', id: 'b-story', disabled: !canAsk || null, onclick: draftStory }, 'Draft hook + story with Claude')),
+    h('div', { class: 'fields' },
+      field('Hook (one line under the title)', h('input', { type: 'text', id: 'f-hook', value: d.hook || '', oninput: save('hook') }), { full: true }),
+      field('Story', h('textarea', { id: 'f-story', rows: 8, value: d.story || '', oninput: save('story') }), { full: true, hint: 'Blank line between paragraphs. **bold**, *italic*, [link](https://…), ### heading.' }))));
+
+  // Publish bar
+  ed.append(h('div', { class: 'pubbar', id: 'pubbar' }));
+  refreshPubBar();
+}
+function newBlankVariant(d) {
+  S.db.collection('drafts/' + d.id + '/variants').add({ approach: 'Hand-made', instructions: '', html: '<div style="padding:16px">\n  <p class="hg-caption">Write your own HTML, CSS and JS here.</p>\n</div>', createdAt: Date.now() })
+    .then(r => { S.curVariant = r.id; S.forceCode = true; refreshVariants(); }).catch(e => toast('Could not add: ' + (e.code || 'error')));
+}
+function updateStream(key) { const el = document.getElementById('stream-' + key); if (el) { const g = S.generating[key]; el.textContent = g.text.length ? g.text.slice(-1400) : 'Thinking…'; el.scrollTop = el.scrollHeight; const c = document.getElementById('count-' + key); if (c) c.textContent = Math.round(g.text.length / 100) / 10 + ' KB written'; } }
+function refreshVariants() {
+  const box = $('#variants'); if (!box) return;
+  const d = S.drafts.find(x => x.id === S.current); if (!d) return;
+  const gens = Object.entries(S.generating).filter(([, g]) => g.draft === d.id);
+  box.innerHTML = '';
+  if (!S.variants.length && !gens.length) { box.append(h('p', { class: 'note' }, 'No versions yet. Pick one or more approaches and ask Claude, or start a blank version and write your own.')); return; }
+  const tabs = h('div', { class: 'vtabs', role: 'tablist', 'aria-label': 'Versions' });
+  S.variants.forEach((v, i) => tabs.append(h('button', { class: 'vtab', role: 'tab', 'aria-selected': String(S.curVariant === v.id), onclick: () => { S.curVariant = v.id; refreshVariants(); } }, d.chosen === v.id ? h('span', { class: 'star', 'aria-label': 'chosen' }, '★') : null, 'v' + (i + 1) + ' · ' + v.approach)));
+  gens.forEach(([k, g]) => tabs.append(h('button', { class: 'vtab busy', role: 'tab', 'aria-selected': String(S.curVariant === 'gen:' + k), onclick: () => { S.curVariant = 'gen:' + k; refreshVariants(); } }, (g.done ? '⚠ ' : '… ') + g.label)));
+  box.append(tabs);
+  if (S.curVariant && S.curVariant.startsWith('gen:')) {
+    const k = S.curVariant.slice(4), g = S.generating[k]; if (!g) return;
+    if (g.done) box.append(h('p', { class: 'note err' }, g.error), h('div', { class: 'row' }, h('button', { class: 'btn small', onclick: () => { delete S.generating[k]; S.curVariant = null; refreshVariants(); } }, 'Dismiss')));
+    else { box.append(h('div', { class: 'row' }, h('span', { class: 'note', id: 'count-' + k }, 'Claude is sketching…'), h('button', { class: 'btn small', onclick: () => g.ctl.abort() }, 'Stop')), h('div', { class: 'stream', id: 'stream-' + k }, g.text ? g.text.slice(-1400) : 'Thinking…')); }
+    return;
+  }
+  const v = S.variants.find(x => x.id === S.curVariant); if (!v) return;
+  let width = S.studio.previewWidth;
+  const pbox = h('div', { class: 'preview-box w-' + width });
+  pbox.append(h('div', { class: 'demo-frame' }, demoFrame(v.html, S.site, 'Preview of ' + v.approach)));
+  const widths = h('div', { class: 'hg-seg row', role: 'group', 'aria-label': 'Preview width' }, [['phone', 'Phone'], ['tablet', 'Tablet'], ['full', 'Full']].map(([w, l]) => h('button', { class: 'btn small' + (w === width ? ' primary' : ''), onclick: e => { width = w; pbox.className = 'preview-box w-' + w; [...e.currentTarget.parentNode.children].forEach(b => b.classList.toggle('primary', b === e.currentTarget)); } }, l)));
+  const isChosen = d.chosen === v.id;
+  const code = h('textarea', { class: 'code', id: 'f-code', spellcheck: 'false', value: v.html });
+  const codeWrap = h('div', { hidden: !(S.studio.codeOpen || S.forceCode) || null, style: 'display:grid;gap:8px' }, field('HTML · CSS · JS', code, { full: true }),
+    h('div', { class: 'row' }, h('button', { class: 'btn small primary', onclick: () => { S.db.doc('drafts/' + d.id + '/variants/' + v.id).update({ html: code.value, editedAt: Date.now() }).then(() => { toast('Saved this version.'); if (isChosen) saveDraft(d.id, {}, 0); }).catch(e => toast('Not saved: ' + (e.code || 'error'))); } }, 'Save into this version'),
+      h('button', { class: 'btn small', onclick: () => { S.db.collection('drafts/' + d.id + '/variants').add({ approach: v.approach.replace(/ · .*$/, '') + ' · edited', instructions: 'hand edit', html: code.value, createdAt: Date.now(), parent: v.id }).then(r => { S.curVariant = r.id; toast('Saved as a new version.'); }).catch(e => toast('Not saved: ' + (e.code || 'error'))); } }, 'Save as new version'),
+      h('button', { class: 'btn small ghost', onclick: () => { const f = pbox.querySelector('iframe'); f._html = code.value; f.srcdoc = demoDoc(code.value, S.site, S.dark); } }, 'Try without saving')));
+  S.forceCode = false;
+  const refineIn = h('input', { type: 'text', id: 'f-refine', placeholder: 'e.g. "add a slider for the number of sides", "slower animation", "bigger labels on phones"' });
+  box.append(
+    h('div', { class: 'row', style: 'justify-content:space-between' },
+      h('div', { class: 'note' }, (v.instructions && v.instructions !== 'hand edit' ? '“' + v.instructions.slice(0, 90) + '” · ' : '') + ago(v.createdAt) + (v.tier ? ' · ' + v.tier : '')),
+      widths),
+    h('div', { class: 'preview-wrap' }, pbox),
+    h('div', { class: 'row' },
+      h('button', { class: 'btn small' + (isChosen ? '' : ' primary'), disabled: isChosen || null, onclick: () => { saveDraft(d.id, { chosen: v.id, status: d.status === 'idea' || d.status === 'drafting' ? 'ready' : d.status }, 0); setTimeout(() => { refreshVariants(); refreshList(); refreshPubBar(); }, 30); } }, isChosen ? '★ This is the one' : 'Use this version'),
+      h('button', { class: 'btn small', onclick: () => { codeWrap.hidden = !codeWrap.hidden; } }, 'Edit code'),
+      h('button', { class: 'btn small', onclick: async () => { try { await navigator.clipboard.writeText(v.html); toast('Code copied.'); } catch { code.hidden = false; codeWrap.hidden = false; code.select(); } } }, 'Copy code'),
+      h('button', { class: 'btn small ghost danger', disabled: isChosen || null, title: isChosen ? 'Choose another version first' : '', onclick: e => { const b = e.currentTarget; if (b.dataset.arm) { S.db.doc('drafts/' + d.id + '/variants/' + v.id).delete().then(() => toast('Version deleted.')); } else { b.dataset.arm = 1; b.textContent = 'Click again to delete'; setTimeout(() => { if (b.isConnected) { delete b.dataset.arm; b.textContent = 'Delete'; } }, 3000); } } }, 'Delete')),
+    S.sample ? h('div', { class: 'row' }, h('div', { style: 'flex:1;min-width:200px' }, refineIn), h('button', { class: 'btn small primary', onclick: () => { const r = refineIn.value; refineIn.value = ''; refine(v, r); } }, 'Refine with Claude')) : null,
+    codeWrap);
+  refineIn.addEventListener('keydown', e => { if (e.key === 'Enter' && refineIn.value.trim()) { const r = refineIn.value; refineIn.value = ''; refine(v, r); } });
+}
+function refreshPubBar(busyMsg) {
+  refreshTop();
+  const bar = $('#pubbar'); if (!bar) return;
+  const d = S.drafts.find(x => x.id === S.current); if (!d) return;
+  const live = (PUB.pieces || []).some(p => p.title === d.title);
+  let msg;
+  if (busyMsg) msg = busyMsg;
+  else if (!d.chosen) msg = 'Choose a version (★) before publishing.';
+  else if (d.status === 'published') msg = live ? ((d.updatedAt || 0) > (PUB.publishedAt || 0) + 1000 ? 'Live, with newer edits waiting. Publish to update it.' : 'Live on the site.') : 'Marked published but not live yet.';
+  else msg = 'Not on the site. ' + (d.status === 'ready' ? 'Ready when you are.' : 'Status: ' + d.status + '.');
+  bar.replaceChildren(
+    h('span', { class: 'msg' }, msg),
+    h('button', { class: 'btn small', onclick: () => { S.tab = 'preview'; S.previewPiece = d.id; renderStudio(); } }, 'Preview as a reader'),
+    d.status === 'published'
+      ? [h('button', { class: 'btn small', disabled: !!busyMsg || null, onclick: () => setStatusAndPublish(d.id, 'ready') }, 'Unpublish'), h('button', { class: 'btn small primary', disabled: !!busyMsg || !d.chosen || null, onclick: () => publishSite('Updating ' + d.title + '…') }, 'Publish changes')]
+      : h('button', { class: 'btn small primary', disabled: !!busyMsg || !d.chosen || null, onclick: () => setStatusAndPublish(d.id, 'published') }, 'Publish this piece'),
+    h('button', { class: 'btn small ghost danger', onclick: e => { const b = e.currentTarget; if (!b.dataset.arm) { b.dataset.arm = 1; b.textContent = 'Click again to delete piece'; setTimeout(() => { if (b.isConnected) { delete b.dataset.arm; b.textContent = 'Delete piece'; } }, 3000); return; } deleteDraft(d); } }, 'Delete piece'));
+}
+async function deleteDraft(d) {
+  try {
+    const vs = await S.db.collection('drafts/' + d.id + '/variants').get();
+    for (const v of vs.docs) await S.db.doc('drafts/' + d.id + '/variants/' + v.id).delete();
+    await S.db.doc('drafts/' + d.id).delete();
+    S.current = null; sess.set('hg-current', ''); toast('Piece deleted' + (d.status === 'published' ? '. Publish the site to remove it from the live page.' : '.')); renderTab();
+  } catch (e) { toast('Could not delete: ' + (e.code || 'error')); }
+}
+
+/* ---- Site look tab ---- */
+function seg(id, value, options, onPick) {
+  return h('div', { class: 'hg-seg row', role: 'group', id }, options.map(([v, l]) => h('button', { class: 'btn small' + (v === value ? ' primary' : ''), 'aria-pressed': String(v === value), onclick: e => { [...e.currentTarget.parentNode.children].forEach(b => { const on = b === e.currentTarget; b.classList.toggle('primary', on); b.setAttribute('aria-pressed', String(on)); }); onPick(v); } }, l)));
+}
+function renderSiteSettings(main) {
+  const st = S.site;
+  const set = (path, v, live = true) => { const ks = path.split('.'); let o = st; ks.slice(0, -1).forEach(k => { o = o[k] = o[k] || {}; }); o[ks[ks.length - 1]] = v; if (live) applyTheme(); saveSite(); refreshMini(); };
+  const txt = (label, path, opts = {}) => { const ks = path.split('.'); const val = ks.reduce((o, k) => o?.[k], st) ?? ''; const inp = h(opts.area ? 'textarea' : 'input', { type: 'text', id: 's-' + path.replace('.', '-'), value: val, rows: opts.area ? 3 : null, oninput: e => set(path, e.target.value, false) }); return field(label, inp, opts); };
+  const chk = (label, path) => { const ks = path.split('.'); return h('label', { class: 'check' }, h('input', { type: 'checkbox', id: 's-' + path.replace('.', '-'), checked: ks.reduce((o, k) => o?.[k], st), onchange: e => set(path, e.target.checked) }), label); };
+
+  // mini live preview
+  const mini = h('div', { class: 'preview-site', style: 'max-height:520px;overflow:auto' });
+  function refreshMini() { debounce('mini', () => { renderSite(mini, { site: st, pieces: PUB.pieces.slice(0, 3) }, { current: null, go() {} }); mini.querySelector('.site-foot')?.remove(); }, 150); }
+
+  main.append(h('div', { class: 'st-editor' },
+    h('div', { class: 'sec' }, h('div', { class: 'sec-head' }, h('h2', null, 'Live preview'), h('p', null, 'Changes save as drafts. Press Publish site to make them live.')), mini),
+    h('div', { class: 'sec' }, h('div', { class: 'sec-head' }, h('h2', null, 'Words')),
+      h('div', { class: 'fields' }, txt('Site name', 'title'), txt('Eyebrow above the name', 'eyebrow'), txt('Tagline', 'tagline', { full: true }), txt('Intro paragraph', 'intro', { full: true, area: true }), txt('Footer', 'footer', { full: true }),
+        txt('"Found at" label', 'labels.foundAt'), txt('Sources heading', 'labels.sources'), txt('Back link', 'labels.back'), txt('Empty message', 'labels.empty'))),
+    h('div', { class: 'sec' }, h('div', { class: 'sec-head' }, h('h2', null, 'Colour')),
+      h('div', { class: 'swatches', role: 'group', 'aria-label': 'Palette' }, Object.entries(PALETTES).map(([k, p]) => h('button', { class: 'swatch', 'aria-pressed': String(st.palette === k), onclick: e => { [...e.currentTarget.parentNode.children].forEach(b => b.setAttribute('aria-pressed', String(b === e.currentTarget))); set('palette', k); renderColorOverrides(); } },
+        h('span', { class: 'strip' }, ['bg', 'fg', 'accent', 'accent2', 'line'].map(t => h('span', { style: 'background:' + p[S.dark ? 'dark' : 'light'][t] }))), h('b', null, p.name)))),
+      field('Light or dark', seg('s-mode', st.mode, [['auto', 'Follow the reader'], ['light', 'Always light'], ['dark', 'Always dark']], v => set('mode', v))),
+      h('details', { class: 'adv' }, h('summary', null, 'Fine-tune individual colours'), h('div', { id: 'overrides', style: 'display:grid;gap:12px;padding-top:12px' }))),
+    h('div', { class: 'sec' }, h('div', { class: 'sec-head' }, h('h2', null, 'Type')),
+      h('div', { class: 'fields' },
+        ...['display', 'body', 'mono'].map(role => field({ display: 'Headings', body: 'Reading text', mono: 'Labels and code' }[role], h('select', { id: 's-font-' + role, onchange: e => set('fonts.' + role, e.target.value) }, FONTS[role].map(f => h('option', { value: f, selected: f === st.fonts[role] ? 'selected' : null }, f))))),
+        field('Text size · ' + Math.round(st.scale * 100) + '%', h('input', { type: 'range', id: 's-scale', min: 0.85, max: 1.25, step: 0.05, value: st.scale, oninput: e => { set('scale', +e.target.value); e.target.closest('.field').firstChild.textContent = 'Text size · ' + Math.round(e.target.value * 100) + '%'; } })))),
+    h('div', { class: 'sec' }, h('div', { class: 'sec-head' }, h('h2', null, 'Layout')),
+      h('div', { class: 'fields' },
+        field('Home page', seg('s-layout', st.layout, [['feature', 'First one big'], ['grid', 'Grid'], ['list', 'List']], v => set('layout', v))),
+        field('Cards', seg('s-card', st.cardStyle, [['outlined', 'Outlined'], ['raised', 'Raised'], ['flat', 'Flat rule']], v => set('cardStyle', v))),
+        field('Demo frame', seg('s-frame', st.demoFrame, [['card', 'Card'], ['bordered', 'Strong border'], ['bare', 'No frame']], v => set('demoFrame', v))),
+        field('Background', seg('s-pattern', st.pattern, [['grid', 'Graph paper'], ['dots', 'Dots'], ['iso', 'Isometric'], ['none', 'Plain']], v => set('pattern', v))),
+        field('Spacing', seg('s-dens', st.density, [['compact', 'Compact'], ['comfortable', 'Comfortable'], ['airy', 'Airy']], v => set('density', v))),
+        field('Page width', seg('s-width', st.width, [['narrow', 'Narrow'], ['standard', 'Standard'], ['wide', 'Wide']], v => set('width', v))),
+        field('Order', seg('s-sort', st.sort, [['newest', 'Newest first'], ['oldest', 'Oldest first'], ['title', 'A to Z'], ['manual', 'My order']], v => set('sort', v)), { hint: 'My order uses the order number on each piece (set in Studio settings).' }),
+        field('Corner roundness · ' + st.radius + 'px', h('input', { type: 'range', id: 's-radius', min: 0, max: 24, step: 1, value: st.radius, oninput: e => { set('radius', +e.target.value); e.target.closest('.field').firstChild.textContent = 'Corner roundness · ' + e.target.value + 'px'; } })))),
+    h('div', { class: 'sec' }, h('div', { class: 'sec-head' }, h('h2', null, 'Show or hide')),
+      h('div', { class: 'fields' }, chk('Intro paragraph', 'show.intro'), chk('"Found at" lines', 'show.foundAt'), chk('Tags on cards', 'show.tags'), chk('Topic filter chips', 'show.filters'), chk('Sources list', 'show.sources'), chk('Previous / next links', 'show.prevNext'), chk('Hover motion', 'motion'))),
+    h('div', { class: 'sec' }, h('div', { class: 'sec-head' }, h('h2', null, 'Reset or export')),
+      h('div', { class: 'row' },
+        h('button', { class: 'btn small', onclick: e => { const b = e.currentTarget; if (!b.dataset.arm) { b.dataset.arm = 1; b.textContent = 'Click again to reset the look'; return; } S.site = merge(DEFAULT_SITE, { title: st.title, tagline: st.tagline, intro: st.intro, eyebrow: st.eyebrow, footer: st.footer, labels: st.labels }); applyTheme(); saveSite(); renderTab(); } }, 'Reset look to defaults'),
+        h('button', { class: 'btn small', onclick: async () => { const data = { site: S.site, pieces: await gatherPieces(['published']) }; try { await navigator.clipboard.writeText(JSON.stringify(data, null, 2)); toast('Site data copied as JSON.'); } catch { toast('Copy is blocked here.'); } } }, 'Copy site data (JSON)')),
+      h('p', { class: 'hint' }, 'The JSON holds settings and every published piece, handy for hosting the site elsewhere later.'))));
+  renderColorOverrides(); refreshMini();
+
+  function renderColorOverrides() {
+    const box = $('#overrides'); if (!box) return; box.innerHTML = '';
+    ['light', 'dark'].forEach(m => {
+      const base = (PALETTES[st.palette] || PALETTES.blueprint)[m]; st.overrides = st.overrides || { light: {}, dark: {} }; st.overrides[m] = st.overrides[m] || {};
+      box.append(h('div', { class: 'eyebrow' }, m === 'light' ? 'Light theme' : 'Dark theme'),
+        h('div', { class: 'colors' }, TOKENS.map(t => { const val = st.overrides[m][t] || base[t];
+          return h('label', { class: 'color' }, h('input', { type: 'color', id: 'c-' + m + '-' + t, value: val, oninput: e => { st.overrides[m][t] = e.target.value; applyTheme(); saveSite(); refreshMini(); } }), TOKEN_LABELS[t], st.overrides[m][t] ? h('button', { type: 'button', onclick: () => { delete st.overrides[m][t]; applyTheme(); saveSite(); renderColorOverrides(); refreshMini(); } }, 'reset') : null); })));
+    });
+  }
+}
+
+/* ---- Studio settings tab ---- */
+function renderStudioSettings(main) {
+  const p = S.studio;
+  const set = (k, v, theme) => { p[k] = v; if (theme) applyTheme(); saveStudio(); };
+  const apprBox = h('div', { style: 'display:grid;gap:10px' });
+  function fillAppr() {
+    apprBox.replaceChildren(...p.approaches.map((a, i) => h('div', { class: 'appr-edit' },
+      h('input', { type: 'text', id: 'a-name-' + a.id, value: a.name, 'aria-label': 'Approach name', oninput: e => { a.name = e.target.value; saveStudio(); } }),
+      h('textarea', { id: 'a-brief-' + a.id, rows: 2, value: a.brief, 'aria-label': 'What Claude should do', oninput: e => { a.brief = e.target.value; saveStudio(); } }),
+      h('button', { class: 'btn small ghost danger', onclick: () => { p.approaches.splice(i, 1); saveStudio(); fillAppr(); } }, 'Remove'))),
+      h('div', { class: 'row' }, h('button', { class: 'btn small', onclick: () => { p.approaches.push({ id: uid(), name: 'New approach', brief: 'Describe how Claude should explain the piece.' }); saveStudio(); fillAppr(); } }, '+ Add approach'),
+        h('button', { class: 'btn small ghost', onclick: () => { p.approaches = clone(DEFAULT_APPROACHES); saveStudio(); fillAppr(); } }, 'Restore the six defaults')));
+    apprBox.querySelectorAll('input,textarea').forEach(x => x.closest('.appr-edit') && (x.style.cssText = 'width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font:.9rem/1.4 var(--font-ui)'));
+  }
+  fillAppr();
+  const orderBox = h('div', { style: 'display:grid;gap:6px' });
+  S.drafts.filter(d => d.status === 'published').sort((a, b) => (a.order ?? 999) - (b.order ?? 999)).forEach(d => orderBox.append(h('label', { class: 'check' }, h('input', { type: 'number', id: 'o-' + d.id, value: d.order ?? 0, style: 'width:70px;padding:6px;border:1px solid var(--line);border-radius:6px;background:var(--bg)', onchange: e => saveDraft(d.id, { order: +e.target.value }, 0) }), d.title)));
+  main.append(h('div', { class: 'st-editor' },
+    h('div', { class: 'sec' }, h('div', { class: 'sec-head' }, h('h2', null, 'Claude'), h('p', null, 'How new versions are made')),
+      h('div', { class: 'fields' },
+        field('Model', seg('p-tier', p.modelTier, [['quick', 'Quick'], ['default', 'Balanced'], ['complex', 'Most capable']], v => set('modelTier', v)), { hint: 'Most capable takes longer but gets the maths right more often.' }),
+        field('House style for every request', h('textarea', { id: 'p-house', rows: 4, value: p.houseStyle, oninput: e => set('houseStyle', e.target.value) }), { full: true, hint: 'Sent with every generation, story draft and refinement.' }))),
+    h('div', { class: 'sec' }, h('div', { class: 'sec-head' }, h('h2', null, 'Approaches'), h('p', null, 'The buttons you pick from when exploring')), apprBox),
+    h('div', { class: 'sec' }, h('div', { class: 'sec-head' }, h('h2', null, 'Studio look')),
+      h('div', { class: 'fields' },
+        field('Light or dark', seg('p-mode', p.mode, [['auto', 'Match the site'], ['light', 'Light'], ['dark', 'Dark']], v => set('mode', v, true))),
+        field('Studio accent', h('div', { class: 'color' }, h('input', { type: 'color', id: 'p-accent', value: p.accent || paletteOf(S.site, S.dark).accent, oninput: e => set('accent', e.target.value, true) }), h('button', { type: 'button', onclick: () => { set('accent', '', true); renderTab(); } }, 'use site accent')), { hint: 'Only changes the studio, never the public site.' }),
+        field('Default preview width', seg('p-width', p.previewWidth, [['phone', 'Phone'], ['tablet', 'Tablet'], ['full', 'Full']], v => set('previewWidth', v))),
+        h('div', { class: 'field' }, h('span', null, 'Options'), h('label', { class: 'check' }, h('input', { type: 'checkbox', id: 'p-compact', checked: p.compact, onchange: e => set('compact', e.target.checked, true) }), 'Compact studio'),
+          h('label', { class: 'check' }, h('input', { type: 'checkbox', id: 'p-code', checked: p.codeOpen, onchange: e => set('codeOpen', e.target.checked) }), 'Open the code editor by default'),
+          h('label', { class: 'check' }, h('input', { type: 'checkbox', id: 'p-ready', checked: p.previewIncludesReady, onchange: e => set('previewIncludesReady', e.target.checked) }), 'Include "ready" pieces in Preview site')))),
+    h('div', { class: 'sec' }, h('div', { class: 'sec-head' }, h('h2', null, 'Order of published pieces'), h('p', null, 'Used when the site order is "My order"')), orderBox.childElementCount ? orderBox : h('p', { class: 'note' }, 'Nothing published yet.'))));
+}
+
+/* ---- Preview tab ---- */
+async function renderPreview(main) {
+  const box = h('div', { class: 'preview-site' }); const note = h('p', { class: 'note' }, 'Loading preview…');
+  main.append(h('div', { class: 'row', style: 'justify-content:space-between;margin-bottom:12px' }, h('p', { class: 'note' }, 'This is the site with your unpublished settings' + (S.studio.previewIncludesReady ? ' and every piece marked ready or published.' : ' and published pieces.')), h('button', { class: 'btn small primary', onclick: () => publishSite() }, 'Publish site')), note, box);
+  const pieces = await gatherPieces(S.studio.previewIncludesReady ? ['published', 'ready'] : ['published']);
+  note.remove();
+  const nav = { current: null, go(id) { nav.current = id; frames.clear(); renderSite(box, { site: S.site, pieces }, nav); box.scrollIntoView({ block: 'start' }); } };
+  if (S.previewPiece) { const d = S.drafts.find(x => x.id === S.previewPiece); const p = d && pieces.find(x => x.title === d.title); nav.current = p ? p.id : null; S.previewPiece = null; }
+  renderSite(box, { site: S.site, pieces }, nav);
+}
+
+boot();
+})();
+</script>
+
+</body>
+</html>
